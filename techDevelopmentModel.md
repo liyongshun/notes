@@ -1,6 +1,6 @@
 
 #技术人员成长模型#
-![技术人员成长模型][techDevelopImg]
+![技术人员成长模型](images/techDevelopImg.png)
 
 整体分为**10**个Level：
 1. 关心自己的技艺，追求好的代码、设计
@@ -13,5 +13,3 @@
 8. 能使用DDD，DCI指导自己的设计，整体设计层次分明，更贴近领域本身
 9. 深刻理解演进式设计的作用，能产生简单的设计
 10. 终极追求高内聚、低耦合，能对业务进行高度抽象，产生DSL，从根本上消除业务处理复杂度
-
-[techDevelopImg]:http://share.zte.com.cn/attachment/img?id=4_10110636-d81eacb1721e471fbd9d6f1176d06bb0.jpg
