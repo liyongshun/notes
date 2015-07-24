@@ -1,6 +1,6 @@
 
 #技术人员成长模型#  
-![技术人员成长模型](images/techDevelopImg.png)
+![技术人员成长模型](images/techDevelopImg.jpg)
 
 整体分为**10**个Level：  
 1. 关心自己的技艺，追求好的代码、设计  
