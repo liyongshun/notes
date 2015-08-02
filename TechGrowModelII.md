@@ -1,5 +1,5 @@
 
-#技术人员成长模型-II#  
+#技术人员成长模型-II
 ![技术人员成长模型](images/tech-growth-model/techGrowthModelII.png)
 
 ###整体分为6个Level:###
