@@ -17,14 +17,28 @@
 
 ##2. 如何做到CleanCode？##
 ###简单设计四原则：###
+> 
++ Passes the tests
++ Reveals intention
++ No duplication
++ Fewest elements
 
-＋ ddd
-＋ ddd
+优先级如下：
+![SimpleDesignPrinciple][simple-design-principle]
+
+###测试驱动开发###
+
+![Tdd][tdd]
+
+
+
 
 
 ![Mind map][clean-code]
 
-[clean-code]: images/clean-code/clean_code.png "CleanCode MindMap"
+[tdd]: images/clean-code/tdd.png
+[simple-design-principle]: images/clean-code/SimpleDesignPrinciple.png
+[clean-code]: images/clean-code/cleanCode.png "CleanCode MindMap"
 
 
 
