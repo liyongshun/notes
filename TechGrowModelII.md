@@ -1,5 +1,5 @@
 
-#软件能力模型-II
+#软件能力模型
 ![软件能力模型](images/tech-growth-model/techGrowthModelII.png)
 
 ###整体分为6个Level:###
