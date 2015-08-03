@@ -1,6 +1,6 @@
 
-#技术人员成长模型-II
-![技术人员成长模型](images/tech-growth-model/techGrowthModelII.png)
+#软件能力模型-II
+![软件能力模型](images/tech-growth-model/techGrowthModelII.png)
 
 ###整体分为6个Level:###
 ####1. 符合团队编码规范要求，能够胜任基本编码工作####
