@@ -35,13 +35,13 @@
 
 ## 3. 练习 ##
 技术教练认证初试题目：翻转棋(详见[wiki](https://en.wikipedia.org/wiki/Reversi))
-给定棋局（初始棋盘）： 
+给定棋局（初始棋盘）：  
 ![Othello Board][othello-init]
-需求：
- 1. 求解所有黑棋可落子位置（e.g. 黑棋可落子位置为：**d3, c4, f5, e6 ** ） 
+**需求：**  
+ 1. 求解所有黑棋可落子位置（e.g. 黑棋可落子位置为：**d3, c4, f5, e6 ** ）  
  ![Dark Moves][othello-dark-moves]
  
- 2. 在某一位置落子后，翻转吃掉的子（e.g. 落子到 **d3** 后，白子 **d4** 被吃掉） 
+ 2. 在某一位置落子后，翻转吃掉的子（e.g. 落子到 **d3** 后，白子 **d4** 被吃掉）  
  ![After dark play][after-dark-play]
  
  3. 打印出所有可能落子后对应的棋局
@@ -131,7 +131,7 @@ private:
 [----------] 1 test from BoardTest (0 ms total)
  
 #### 3.2.3 Eliminate redundancy - REFACTOR
-整体看下，代码中没有明显的重复，看下CleanCode的关注点，发现还时有一些问题，开启我们的重构模式吧
+整体看下，代码中没有明显的重复，看下CleanCode的关注点，发现还时有一些问题，开启我们的重构模式吧  
 1. 命名
 	我们根据题目的语义，从测试驱动角度，名字已经比较OK了，但是文件里面依然有些问题：h8+1 可能让人迷惑，另外作为数组最大值，可以预见到后面还会被使用。
     ```cpp
@@ -145,7 +145,7 @@ private:
 2. 物理设计
 	Position与Board为两个独立概念，应将单独拆分出去
     Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件
-    GridStatus目前与Board关系紧密，暂时不动
+    GridStatus目前与Board关系紧密，暂时不动  
     ```cpp
     //Position.h
     #ifndef _INCL_POSITION_H_
