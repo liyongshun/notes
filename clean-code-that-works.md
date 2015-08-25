@@ -132,7 +132,7 @@ private:
  
 #### 3.2.3 Eliminate redundancy - REFACTOR
 整体看下，代码中没有明显的重复，看下CleanCode的关注点，发现还时有一些问题，开启我们的重构模式吧  
-**命名**
+**命名**  
 我们根据题目的语义，从测试驱动角度，名字已经比较OK了，但是文件里面依然有些问题：h8+1 可能让人迷惑，另外作为数组最大值，可以预见到后面还会被使用。
 ```cpp
 GridStatus grids[h8+1];
@@ -142,10 +142,10 @@ GridStatus grids[h8+1];
 enum {MAX_GRID_NUM = h8+1 };
 GridStatus grids[MAX_GRID_NUM];
 ```
-**物理设计**
-1. Position与Board为两个独立概念，应将单独拆分出去
-2. Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件
-3. GridStatus目前与Board关系紧密，暂时不动
+**物理设计**  
+1. Position与Board为两个独立概念，应将单独拆分出去 
+2. Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件 
+3. GridStatus目前与Board关系紧密，暂时不动 
 
 ```cpp
 //Position.h
@@ -214,7 +214,7 @@ GridStatus Board::at(Position p) const
 
 ---
 
-**FAIL:**
+**FAIL:**  
 ```cpp
 #include "gtest/gtest.h"
 #include "Board.h"
@@ -271,7 +271,7 @@ TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
 }
 ```
 ---
-**PASS:**
+**PASS:**  
 ```cpp
 //Board.h
 #ifndef _INCL_BOARD_H_
@@ -343,7 +343,7 @@ void Board::turnOver(Position p)
 }
 ```
 ---
-**REFACTOR**
+**REFACTOR**  
 我们发现Board中```grids[e4] = B;```,```grids[p] == B```等语义不是很好，应该抽象出Grid类，专门处理棋子状态
 
 ```cpp
