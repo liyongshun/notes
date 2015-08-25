@@ -132,7 +132,7 @@ private:
  
 #### 3.2.3 Eliminate redundancy - REFACTOR
 整体看下，代码中没有明显的重复，看下CleanCode的关注点，发现还时有一些问题，开启我们的重构模式吧  
-1. 命名 
+1. 命名  
 	我们根据题目的语义，从测试驱动角度，名字已经比较OK了，但是文件里面依然有些问题：h8+1 可能让人迷惑，另外作为数组最大值，可以预见到后面还会被使用。
     ```cpp
     GridStatus grids[h8+1];
@@ -142,10 +142,10 @@ private:
     enum {MAX_GRID_NUM = h8+1 };
     GridStatus grids[MAX_GRID_NUM];
     ```
-2. 物理设计 
+2. 物理设计  
 	Position与Board为两个独立概念，应将单独拆分出去
     Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件
-    GridStatus目前与Board关系紧密，暂时不动 
+    GridStatus目前与Board关系紧密，暂时不动  
     ```cpp
     //Position.h
     #ifndef _INCL_POSITION_H_
