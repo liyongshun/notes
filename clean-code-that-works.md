@@ -1,7 +1,7 @@
 #Clean Code That Works#
 ##1. 为什么要CleanCode？##
 
-“Clean Code That Works”，来自于*Ron Jeffries*这句箴言指导我们写的代码要整洁有效，*Kent Beck*把它作为TDD（Test Driven Development）追求的目标，*BoB大叔*（Robert C. Martin）甚至写了一本书来阐述他的理解。
+“Clean Code That Works”，来自于*Ron Jeffries*这句箴言指导我们写的代码要整洁有效，*Kent Beck*把它作为TDD（Test Driven Development）追求的目标，*BoB大叔*（Robert C. Martin）甚至写了一本书来阐述他的理解。 
 你可能不这么认为：**Works**不就Ok了么？为什么还要**CleanCode**呢?
 *kent Beck*给出了如下原因：
 + It is a predictable way to develop. You know when you are finished, without having to worry about a long bug trail.
@@ -591,7 +591,7 @@ void Board::turnOver(Position p)
 
 
 
-[tdd]: images/clean-code/tdd.gif
+[tdd]: images/clean-code-that-works/tdd.gif
 [simple-design-principle]: images/clean-code-that-works/SimpleDesignPrinciple.png
 [clean-code]: images/clean-code-that-works/cleanCode.png "CleanCode MindMap"
 [othello-init]: images/clean-code-that-works/othelloInit.png
