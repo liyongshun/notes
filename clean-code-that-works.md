@@ -493,6 +493,8 @@ TEST(BoardTest, should_return_false_given_out_of_range_of_a1_to_h8)
     ASSERT_FALSE(board.onBoard(moreThanh8));
     ASSERT_FALSE(board.isOccupied(lessThana1));
     ASSERT_FALSE(board.isOccupied(moreThanh8));
+    ASSERT_FALSE(board.at(lessThana1).isOccupied());
+    ASSERT_FALSE(board.at(moreThanh8).isOccupied());
 }
 
 TEST(BoardTest, should_place_disk_given_a_positon_in_the_board)
@@ -554,6 +556,7 @@ Board::Board()
 
 Grid Board::at(Position p) const
 {
+	if( ! onBoard(p)) return Grid();
     return grids[p];
 }
 
@@ -595,7 +598,29 @@ bool Board::onBoard(Position p)
 }
 ...
 ```
+```	if( ! onBoard(p)) return Grid();```当给定位置无效时，每次都会构造用一个对象，使用static NullObject即可.**此处加入性能2/8原则解释**  
+```cpp
+Grid Board::at(Position p) const
+{
+	if( ! onBoard(p)) return Grid();
+    return grids[p];
+}
+```
+改为：
+```cpp
+Grid Board::at(Position p) const
+{
+    if( ! onBoard(p))
+    {
+        static Grid nullGrid;
+        return nullGrid;
+    }
+    
+    return grids[p];
+}
 
+```
+到目前为止，```Board```类基本功能已经完成，后续如果有新的需求，根据需要在增加
 
 
 [tdd]: images/clean-code-that-works/tdd.gif
