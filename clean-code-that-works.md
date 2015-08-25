@@ -132,84 +132,88 @@ private:
  
 #### 3.2.3 Eliminate redundancy - REFACTOR
 整体看下，代码中没有明显的重复，看下CleanCode的关注点，发现还时有一些问题，开启我们的重构模式吧  
-1. 命名  
-	我们根据题目的语义，从测试驱动角度，名字已经比较OK了，但是文件里面依然有些问题：h8+1 可能让人迷惑，另外作为数组最大值，可以预见到后面还会被使用。
-    ```cpp
-    GridStatus grids[h8+1];
-    ```
-    改为：
-	```cpp
+**命名**
+我们根据题目的语义，从测试驱动角度，名字已经比较OK了，但是文件里面依然有些问题：h8+1 可能让人迷惑，另外作为数组最大值，可以预见到后面还会被使用。
+```cpp
+GridStatus grids[h8+1];
+```
+改为：
+```cpp
+enum {MAX_GRID_NUM = h8+1 };
+GridStatus grids[MAX_GRID_NUM];
+```
+**物理设计**
+1. Position与Board为两个独立概念，应将单独拆分出去
+2. Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件
+3. GridStatus目前与Board关系紧密，暂时不动
+
+```cpp
+//Position.h
+#ifndef _INCL_POSITION_H_
+#define _INCL_POSITION_H_
+
+enum Position
+{
+    a1, b1, c1, d1, e1, f1, g1, h1,
+    a2, b2, c2, d2, e2, f2, g2, h2,
+    a3, b3, c3, d3, e3, f3, g3, h3,
+    a4, b4, c4, d4, e4, f4, g4, h4,
+    a5, b5, c5, d5, e5, f5, g5, h5,
+    a6, b6, c6, d6, e6, f6, g6, h6,
+    a7, b7, c7, d7, e7, f7, g7, h7,
+    a8, b8, c8, d8, e8, f8, g8, h8,
+};
+
+#endif
+```
+```cpp
+//Board.h
+#ifndef _INCL_BOARD_H_
+#define _INCL_BOARD_H_
+
+#include "Position.h"
+
+enum GridStatus { B, W };
+
+struct Board
+{
+    Board();
+    GridStatus at(Position p) const;
+
+private:
     enum {MAX_GRID_NUM = h8+1 };
     GridStatus grids[MAX_GRID_NUM];
-    ```
-2. 物理设计  
-	Position与Board为两个独立概念，应将单独拆分出去
-    Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件
-    GridStatus目前与Board关系紧密，暂时不动  
-    ```cpp
-    //Position.h
-    #ifndef _INCL_POSITION_H_
-    #define _INCL_POSITION_H_
+};
 
-    enum Position
+#endif
+
+```
+```cpp
+//Board.cpp
+#include "Board.h"
+
+Board::Board()
+{
+    for(GridStatus& status: grids)
     {
-        a1, b1, c1, d1, e1, f1, g1, h1,
-        a2, b2, c2, d2, e2, f2, g2, h2,
-        a3, b3, c3, d3, e3, f3, g3, h3,
-        a4, b4, c4, d4, e4, f4, g4, h4,
-        a5, b5, c5, d5, e5, f5, g5, h5,
-        a6, b6, c6, d6, e6, f6, g6, h6,
-        a7, b7, c7, d7, e7, f7, g7, h7,
-        a8, b8, c8, d8, e8, f8, g8, h8,
-    };
-
-    #endif
-    ```
-	```cpp
-    //Board.h
-    #ifndef _INCL_BOARD_H_
-    #define _INCL_BOARD_H_
-
-    #include "Position.h"
-
-    enum GridStatus { B, W };
-
-    struct Board
-    {
-        Board();
-        GridStatus at(Position p) const;
-
-    private:
-        enum {MAX_GRID_NUM = h8+1 };
-        GridStatus grids[MAX_GRID_NUM];
-    };
-
-    #endif
-
-    ```
-    ```cpp
-    //Board.cpp
-    #include "Board.h"
-
-    Board::Board()
-    {
-        for(GridStatus& status: grids)
-        {
-            status = B;
-        }
-
-        grids[d4] = W;
-        grids[e5] = W;
-
+        status = B;
     }
 
-    GridStatus Board::at(Position p) const
-    {
-        return grids[p];
-    }
-    ```
+    grids[d4] = W;
+    grids[e5] = W;
+
+}
+
+GridStatus Board::at(Position p) const
+{
+    return grids[p];
+}
+```
 
 运行，测试通过（**本轮TDD完成，后续我们一直按照三步走，不在赘述**）
+
+---
+
 **FAIL:**
 ```cpp
 #include "gtest/gtest.h"
@@ -266,7 +270,7 @@ TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
     ASSERT_EQ(B, board.at(a1));
 }
 ```
-
+---
 **PASS:**
 ```cpp
 //Board.h
@@ -338,255 +342,257 @@ void Board::turnOver(Position p)
     grids[p] = (grids[p] == B) ? W : B;
 }
 ```
+---
 **REFACTOR**
-1. 我们发现Board中```grids[e4] = B;```,```grids[p] == B```等语义不是很好，应该抽象出Grid类，专门处理棋子状态
-    ```cpp
-    #include "gtest/gtest.h"
-    #include "Grid.h"
+我们发现Board中```grids[e4] = B;```,```grids[p] == B```等语义不是很好，应该抽象出Grid类，专门处理棋子状态
 
-    TEST(GirdTest, should_not_occupied_in_init_state)
+```cpp
+#include "gtest/gtest.h"
+#include "Grid.h"
+
+TEST(GirdTest, should_not_occupied_in_init_state)
+{
+    Grid grid;
+    ASSERT_FALSE(grid.isOccupied());
+}
+
+TEST(GirdTest, should_occupied_by_black_disk_when_place_black)
+{
+    Grid grid;
+    grid.place(B);
+    ASSERT_TRUE(grid.isOccupied());
+    ASSERT_TRUE(grid.isBlack());
+}
+
+TEST(GirdTest, should_occupied_by_white_disk_when_place_white)
+{
+    Grid grid;
+    grid.place(W);
+    ASSERT_TRUE(grid.isOccupied());
+    ASSERT_TRUE(grid.isWhite());
+}
+
+TEST(GirdTest, should_not_occupied_when_reset)
+{
+    Grid grid;
+    grid.place(W);
+    grid.reset();
+    ASSERT_FALSE(grid.isOccupied());
+}
+
+TEST(GirdTest, should_turn_over_when_grid_is_occupided)
+{
+    Grid grid;
+    grid.turnOver();
+    ASSERT_FALSE(grid.isOccupied());
+
+    grid.place(W);
+    grid.turnOver();
+    ASSERT_TRUE(grid.isBlack());
+    grid.turnOver();
+    ASSERT_TRUE(grid.isWhite());
+}
+
+//Grid.h
+#ifndef _INCL_GRID_H_
+#define _INCL_GRID_H_
+
+enum GridStatus { _, B, W };
+
+struct Grid
+{
+    Grid();
+
+    void place(GridStatus);
+    void reset();
+    void turnOver();
+
+    bool isOccupied() const;
+    bool isBlack() const;
+    bool isWhite() const;
+private:
+    GridStatus status;
+};
+
+#endif
+//Grid.cpp
+#include "Grid.h"
+
+Grid::Grid()
+{
+    reset();
+}
+
+void Grid::place(GridStatus s)
+{
+    if(s == _) return;
+    status = s;
+}
+
+void Grid::reset()
+{
+    status = _;
+}
+
+void Grid::turnOver()
+{
+    if( ! isOccupied()) return;
+
+    status = isBlack() ? W : B;
+}
+
+bool Grid::isOccupied() const
+{
+    return isBlack() || isWhite();
+}
+
+bool Grid::isBlack() const
+{
+    return status == B;
+}
+
+bool Grid::isWhite() const
+{
+    return status == W;
+}
+//Adapt BoardTest.cpp 
+#include "gtest/gtest.h"
+#include "Board.h"
+
+TEST(BoardTest, should_init_board_with_black_in_e4_d5_and_white_in_d4_e5)
+{
+    Board board;
+    ASSERT_TRUE(board.at(e4).isBlack());
+    ASSERT_TRUE(board.at(d5).isBlack());
+    ASSERT_TRUE(board.at(d4).isWhite());
+    ASSERT_TRUE(board.at(e5).isWhite());
+}
+
+TEST(BoardTest, should_not_occupied_except_e4_d5_d4_e5)
+{
+    Board board;
+    ASSERT_FALSE(board.isOccupied(a1));
+    ASSERT_FALSE(board.isOccupied(h8));
+}
+
+TEST(BoardTest, should_return_ture_given_a1_to_h8)
+{
+    Board board;
+    ASSERT_TRUE(board.onBoard(a1));
+    ASSERT_TRUE(board.onBoard(h8));
+}
+
+TEST(BoardTest, should_return_false_given_out_of_range_of_a1_to_h8)
+{
+    Board board;
+    Position lessThana1 = static_cast<Position>(a1-1);
+    Position moreThanh8 = static_cast<Position>(h8+1);
+    ASSERT_FALSE(board.onBoard(lessThana1));
+    ASSERT_FALSE(board.onBoard(moreThanh8));
+    ASSERT_FALSE(board.isOccupied(lessThana1));
+    ASSERT_FALSE(board.isOccupied(moreThanh8));
+}
+
+TEST(BoardTest, should_place_disk_given_a_positon_in_the_board)
+{
+    Board board;
+    board.place(a1, W);
+    ASSERT_TRUE(board.at(a1).isOccupied());
+    ASSERT_TRUE(board.at(a1).isWhite());
+}
+
+TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
+{
+    Board board;
+    board.place(a1, W);
+    board.turnOver(a1);
+    ASSERT_TRUE(board.at(a1).isOccupied());
+    ASSERT_TRUE(board.at(a1).isBlack());
+}
+
+//Board.h
+#ifndef _INCL_BOARD_H_
+#define _INCL_BOARD_H_
+
+#include "Position.h"
+#include "Grid.h"
+
+struct Board
+{
+    Board();
+    void place(Position, GridStatus);
+    void turnOver(Position);
+
+    Grid at(Position p) const;
+    bool isOccupied(Position) const;
+    bool onBoard(Position) const;
+
+private:
+    enum {MAX_GRID_NUM = h8+1 };
+    Grid grids[MAX_GRID_NUM];
+};
+
+#endif
+
+//Board.cpp
+#include "Board.h"
+
+Board::Board()
+{
+    for(Grid& status: grids)
     {
-        Grid grid;
-        ASSERT_FALSE(grid.isOccupied());
+        status.reset();
     }
 
-    TEST(GirdTest, should_occupied_by_black_disk_when_place_black)
-    {
-        Grid grid;
-        grid.place(B);
-        ASSERT_TRUE(grid.isOccupied());
-        ASSERT_TRUE(grid.isBlack());
-    }
+    grids[e4].place(B);
+    grids[d5].place(B);
+    grids[d4].place(W);
+    grids[e5].place(W);
+}
 
-    TEST(GirdTest, should_occupied_by_white_disk_when_place_white)
-    {
-        Grid grid;
-        grid.place(W);
-        ASSERT_TRUE(grid.isOccupied());
-        ASSERT_TRUE(grid.isWhite());
-    }
+Grid Board::at(Position p) const
+{
+    return grids[p];
+}
 
-    TEST(GirdTest, should_not_occupied_when_reset)
-    {
-        Grid grid;
-        grid.place(W);
-        grid.reset();
-        ASSERT_FALSE(grid.isOccupied());
-    }
+bool Board::isOccupied(Position p) const
+{
+    if( ! onBoard(p)) return false;
+    return grids[p].isOccupied();
+}
 
-    TEST(GirdTest, should_turn_over_when_grid_is_occupided)
-    {
-        Grid grid;
-        grid.turnOver();
-        ASSERT_FALSE(grid.isOccupied());
+bool Board::onBoard(Position p) const
+{
+    return p >= a1 && p <= h8;
+}
 
-        grid.place(W);
-        grid.turnOver();
-        ASSERT_TRUE(grid.isBlack());
-        grid.turnOver();
-        ASSERT_TRUE(grid.isWhite());
-    }
+void Board::place(Position p, GridStatus s)
+{
+    grids[p].place(s);
+}
 
-    //Grid.h
-    #ifndef _INCL_GRID_H_
-    #define _INCL_GRID_H_
+void Board::turnOver(Position p)
+{
+    grids[p].turnOver();
+}
 
-    enum GridStatus { _, B, W };
+```
 
-    struct Grid
-    {
-        Grid();
+```bool onBoard(Position) const;```不会修改类的成员，所以应该为static
 
-        void place(GridStatus);
-        void reset();
-        void turnOver();
-
-        bool isOccupied() const;
-        bool isBlack() const;
-        bool isWhite() const;
-    private:
-        GridStatus status;
-    };
-
-    #endif
-    //Grid.cpp
-    #include "Grid.h"
-
-    Grid::Grid()
-    {
-        reset();
-    }
-
-    void Grid::place(GridStatus s)
-    {
-        if(s == _) return;
-        status = s;
-    }
-
-    void Grid::reset()
-    {
-        status = _;
-    }
-
-    void Grid::turnOver()
-    {
-        if( ! isOccupied()) return;
-
-        status = isBlack() ? W : B;
-    }
-
-    bool Grid::isOccupied() const
-    {
-        return isBlack() || isWhite();
-    }
-
-    bool Grid::isBlack() const
-    {
-        return status == B;
-    }
-
-    bool Grid::isWhite() const
-    {
-        return status == W;
-    }
-    //Adapt BoardTest.cpp 
-    #include "gtest/gtest.h"
-    #include "Board.h"
-
-    TEST(BoardTest, should_init_board_with_black_in_e4_d5_and_white_in_d4_e5)
-    {
-        Board board;
-        ASSERT_TRUE(board.at(e4).isBlack());
-        ASSERT_TRUE(board.at(d5).isBlack());
-        ASSERT_TRUE(board.at(d4).isWhite());
-        ASSERT_TRUE(board.at(e5).isWhite());
-    }
-
-    TEST(BoardTest, should_not_occupied_except_e4_d5_d4_e5)
-    {
-        Board board;
-        ASSERT_FALSE(board.isOccupied(a1));
-        ASSERT_FALSE(board.isOccupied(h8));
-    }
-
-    TEST(BoardTest, should_return_ture_given_a1_to_h8)
-    {
-        Board board;
-        ASSERT_TRUE(board.onBoard(a1));
-        ASSERT_TRUE(board.onBoard(h8));
-    }
-
-    TEST(BoardTest, should_return_false_given_out_of_range_of_a1_to_h8)
-    {
-        Board board;
-        Position lessThana1 = static_cast<Position>(a1-1);
-        Position moreThanh8 = static_cast<Position>(h8+1);
-        ASSERT_FALSE(board.onBoard(lessThana1));
-        ASSERT_FALSE(board.onBoard(moreThanh8));
-        ASSERT_FALSE(board.isOccupied(lessThana1));
-        ASSERT_FALSE(board.isOccupied(moreThanh8));
-    }
-
-    TEST(BoardTest, should_place_disk_given_a_positon_in_the_board)
-    {
-        Board board;
-        board.place(a1, W);
-        ASSERT_TRUE(board.at(a1).isOccupied());
-        ASSERT_TRUE(board.at(a1).isWhite());
-    }
-
-    TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
-    {
-        Board board;
-        board.place(a1, W);
-        board.turnOver(a1);
-        ASSERT_TRUE(board.at(a1).isOccupied());
-        ASSERT_TRUE(board.at(a1).isBlack());
-    }
-
-    //Board.h
-    #ifndef _INCL_BOARD_H_
-    #define _INCL_BOARD_H_
-
-    #include "Position.h"
-    #include "Grid.h"
-
-    struct Board
-    {
-        Board();
-        void place(Position, GridStatus);
-        void turnOver(Position);
-
-        Grid at(Position p) const;
-        bool isOccupied(Position) const;
-        bool onBoard(Position) const;
-
-    private:
-        enum {MAX_GRID_NUM = h8+1 };
-        Grid grids[MAX_GRID_NUM];
-    };
-
-    #endif
-
-	//Board.cpp
-    #include "Board.h"
-
-    Board::Board()
-    {
-        for(Grid& status: grids)
-        {
-            status.reset();
-        }
-
-        grids[e4].place(B);
-        grids[d5].place(B);
-        grids[d4].place(W);
-        grids[e5].place(W);
-    }
-
-    Grid Board::at(Position p) const
-    {
-        return grids[p];
-    }
-
-    bool Board::isOccupied(Position p) const
-    {
-        if( ! onBoard(p)) return false;
-        return grids[p].isOccupied();
-    }
-
-    bool Board::onBoard(Position p) const
-    {
-        return p >= a1 && p <= h8;
-    }
-
-    void Board::place(Position p, GridStatus s)
-    {
-        grids[p].place(s);
-    }
-
-    void Board::turnOver(Position p)
-    {
-        grids[p].turnOver();
-    }
-
-    ```
-2. ```bool onBoard(Position) const;```不会修改类的成员，所以应该为static
-	```cpp
-    //Board.h
-    ...
-    static bool onBoard(Position);
-    ...
-    //Board.cpp
-    ...
-    bool Board::onBoard(Position p)
-    {
-        return p >= a1 && p <= h8;
-    }
-    ...
-    ```
-    
-
+```cpp
+//Board.h
+...
+static bool onBoard(Position);
+...
+//Board.cpp
+...
+bool Board::onBoard(Position p)
+{
+    return p >= a1 && p <= h8;
+}
+...
+```
 
 
 
