@@ -415,6 +415,7 @@ private:
 };
 
 #endif
+
 //Grid.cpp
 #include "Grid.h"
 
@@ -455,7 +456,8 @@ bool Grid::isWhite() const
 {
     return status == W;
 }
-//Adapt BoardTest.cpp 
+
+//Adapt BoardTest.cpp
 #include "gtest/gtest.h"
 #include "Board.h"
 
