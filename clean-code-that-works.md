@@ -143,9 +143,9 @@ enum {MAX_GRID_NUM = h8+1 };
 GridStatus grids[MAX_GRID_NUM];
 ```
 **物理设计**  
-1. Position与Board为两个独立概念，应将单独拆分出去 
-2. Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件 
-3. GridStatus目前与Board关系紧密，暂时不动 
+1. Position与Board为两个独立概念，应将单独拆分出去  
+2. Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件  
+3. GridStatus目前与Board关系紧密，暂时不动  
 
 ```cpp
 //Position.h
