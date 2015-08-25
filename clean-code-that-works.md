@@ -35,13 +35,13 @@
 
 ## 3. 练习 ##
 技术教练认证初试题目：翻转棋(详见[wiki](https://en.wikipedia.org/wiki/Reversi))
-给定棋局（初始棋盘）： 
-![Othello Board][othello-init]
+给定棋局（初始棋盘）：  
+![Othello Board][othello-init]  
 需求：
- 1. 求解所有黑棋可落子位置（e.g. 黑棋可落子位置为：**d3, c4, f5, e6 ** ） 
+ 1. 求解所有黑棋可落子位置（e.g. 黑棋可落子位置为：**d3, c4, f5, e6 ** ）  
  ![Dark Moves][othello-dark-moves]
  
- 2. 在某一位置落子后，翻转吃掉的子（e.g. 落子到 **d3** 后，白子 **d4** 被吃掉） 
+ 2. 在某一位置落子后，翻转吃掉的子（e.g. 落子到 **d3** 后，白子 **d4** 被吃掉）  
  ![After dark play][after-dark-play]
  
  3. 打印出所有可能落子后对应的棋局
@@ -146,7 +146,6 @@ private:
 	Position与Board为两个独立概念，应将单独拆分出去
     Board头文件*构造函数*及*at*方法inline实现，目前不是性能瓶颈，我们应将其移入源文件
     GridStatus目前与Board关系紧密，暂时不动
-    
     ```cpp
     //Position.h
     #ifndef _INCL_POSITION_H_
@@ -210,7 +209,7 @@ private:
     }
     ```
 
-运行，测试通过（**本轮TDD完成，后续我们一直按照三步走，不在赘述**）
+运行，测试通过（**本轮TDD完成，后续我们一直按照三步走，不在赘述**） 
 **FAIL:**
 ```cpp
 #include "gtest/gtest.h"
@@ -339,6 +338,7 @@ void Board::turnOver(Position p)
     grids[p] = (grids[p] == B) ? W : B;
 }
 ```
+
 **REFACTOR**
 1. 我们发现Board中```grids[e4] = B;```,```grids[p] == B```等语义不是很好，应该抽象出Grid类，专门处理棋子状态
     ```cpp
