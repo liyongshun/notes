@@ -34,7 +34,7 @@
 ![Mind map][clean-code]
 
 ## 3. 练习 ##
-技术教练认证初试题目：翻转棋(详见[wiki](https://en.wikipedia.org/wiki/Reversi))
+技术教练认证初试题目：翻转棋(Reversi，详见[wiki](https://en.wikipedia.org/wiki/Reversi))
 给定棋局（初始棋盘）：  
 ![Othello Board][othello-init]
 **需求：**  
@@ -53,7 +53,85 @@
 + 理清业务需求，根据经验，找到当前上下文下自己能找到的最好设计
 + 演进式的设计，通过Fail-Pass-Refactor方式逐渐找到问题的本质
 
-回到问题，我们要实现翻转棋中两个基础功能，我们先分析下有哪些概念：
+我们快速把需求翻译成测试用例：
+```cpp
+//ReversiTest.cpp
+#include "gtest/gtest.h"
+#include "Reversi.h"
+
+struct ReversiTest : testing::Test
+{
+protected:
+    Reversi reversi;
+};
+
+TEST_F(ReversiTest, should_get_a_board_from_reversi_equals_a_init_board)
+{
+    const Board EXPECT_INIT_BOARD;
+    ASSERT_EQ(EXPECT_INIT_BOARD, Reversi().getBoard());
+}
+
+TEST_F(ReversiTest, should_get_available_positions_given_a_valid_position_in_the_board)
+{
+    const Positions EXPECT_POSITIONS_OF_e4 = {c4, e6};
+    ASSERT_EQ(EXPECT_POSITIONS_OF_e4, Reversi().gitAvailablePositions(e4));
+
+    const Positions EXPECT_POSITIONS_OF_d5 = {d3, f5};
+    ASSERT_EQ(EXPECT_POSITIONS_OF_d5, Reversi().gitAvailablePositions(d5));
+}
+
+struct ReversiWithSpecificSetTest : ReversiTest
+{
+    ReversiWithSpecificSetTest()
+    {
+        buildSet();
+        reversi.refresh(set);
+    }
+
+    void buildSet()
+    {
+        set.place(Positions{a1, c3, e3, f4, e8}, BLACK);
+        set.place(Positions{a2, d4, e4, e5, f5, b8, c8, d8}, WHITE);
+    }
+
+    void ASSERT_BOARD(const Position move, const Positions& positionChanged)
+    {
+        Board EXPECT_SET(set);
+        EXPECT_SET.place(positionChanged, BLACK);
+        ASSERT_EQ(EXPECT_SET, reversi.capture(move));
+        EXPECT_SET.print();
+    }
+
+protected:
+    Board set;
+};
+
+namespace
+{
+    const Positions EXPECT_POSITIONS_ALL_BLACKS = {a3, f6, c5, e6, c4, d6, a8};
+}
+
+TEST(ReversiWithSpecificSetTest, should_get_all_available_positions_given_a_disk_with_a_specific_set)
+{
+    Reversi reversi;
+    reversi.refresh(set);
+
+    ASSERT_EQ(EXPECT_POSITIONS_ALL_BLACKS, reversi.getAllAvailablePositions(BLACK));
+}
+
+TEST(ReversiWithSpecificSetTest, should_turn_over_the_captured_disk_given_a_available_position)
+{
+    ASSERT_BOARD(a3, Positions{a2, a3});
+    ASSERT_BOARD(f6, Positions{d4, e5, f5, f6});
+    ASSERT_BOARD(e6, Positions{e4, e5, e6});
+    ASSERT_BOARD(c5, Positions{d4, c5});
+    ASSERT_BOARD(c4, Positions{c4, d4, e4});
+    ASSERT_BOARD(d6, Positions{d6, e5});
+    ASSERT_BOARD(a8, Positions{a8, b8, c8, d8});
+}
+
+```
+回到问题，我们要实现翻转棋中基础功能，我们先分析下有哪些概念：
 + 棋盘（Board）: 
 	棋盘由8X8方格(Grid)组成，每个空格可以有三种状态，空闲，放黑棋，放白棋，默认棋盘在e4, d5位置(Position)放置黑棋，在d4, e5位置放置白棋
 + 棋子（Disk）：
@@ -76,10 +154,10 @@
 TEST(BoardTest, should_init_board_with_black_in_e4_d5_and_white_in_d4_e5)
 {
     Board board;
-    ASSERT_EQ(B, board.at(e4));
-    ASSERT_EQ(B, board.at(d5));
-    ASSERT_EQ(W, board.at(d4));
-    ASSERT_EQ(W, board.at(e5));
+    ASSERT_EQ(BLACK, board.at(e4));
+    ASSERT_EQ(BLACK, board.at(d5));
+    ASSERT_EQ(WHITE, board.at(d4));
+    ASSERT_EQ(WHITE, board.at(e5));
 }
 ```
 #### 3.2.2 Make the code work - PASS
@@ -99,7 +177,7 @@ enum Position
     a8, b8, c8, d8, e8, f8, g8, h8,
 };
 
-enum GridStatus { B, W };
+enum GridStatus { BLACK, WHITE };
 
 struct Board
 {
@@ -107,11 +185,11 @@ struct Board
     {
         for(GridStatus& status: grids)
         {
-            status = B;
+            status = BLACK;
         }
 
-        grids[d4] = W;
-        grids[e5] = W;
+        grids[d4] = WHITE;
+        grids[e5] = WHITE;
     }
     
     GridStatus at(Position p) const
@@ -173,7 +251,7 @@ enum Position
 
 #include "Position.h"
 
-enum GridStatus { B, W };
+enum GridStatus { BLACK, WHITE };
 
 struct Board
 {
@@ -196,11 +274,11 @@ Board::Board()
 {
     for(GridStatus& status: grids)
     {
-        status = B;
+        status = BLACK;
     }
 
-    grids[d4] = W;
-    grids[e5] = W;
+    grids[d4] = WHITE;
+    grids[e5] = WHITE;
 
 }
 
@@ -222,10 +300,10 @@ GridStatus Board::at(Position p) const
 TEST(BoardTest, should_init_board_with_black_in_e4_d5_and_white_in_d4_e5)
 {
     Board board;
-    ASSERT_EQ(B, board.at(e4));
-    ASSERT_EQ(B, board.at(d5));
-    ASSERT_EQ(W, board.at(d4));
-    ASSERT_EQ(W, board.at(e5));
+    ASSERT_EQ(BLACK, board.at(e4));
+    ASSERT_EQ(BLACK, board.at(d5));
+    ASSERT_EQ(WHITE, board.at(d4));
+    ASSERT_EQ(WHITE, board.at(e5));
 }
 
 TEST(BoardTest, should_not_occupied_except_e4_d5_d4_e5)
@@ -256,15 +334,15 @@ TEST(BoardTest, should_return_false_given_out_of_range_of_a1_to_h8)
 TEST(BoardTest, should_place_disk_given_a_positon_in_the_board)
 {
     Board board;
-    board.place(a1, W);
+    board.place(a1, WHITE);
     ASSERT_TRUE(board.isOccupied(a1));
-    ASSERT_EQ(W, board.at(a1));
+    ASSERT_EQ(WHITE, board.at(a1));
 }
 
 TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
 {
     Board board;
-    board.place(a1, W);
+    board.place(a1, WHITE);
     board.turnOver(a1);
     ASSERT_TRUE(board.isOccupied(a1));
     ASSERT_EQ(B, board.at(a1));
@@ -279,7 +357,7 @@ TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
 
 #include "Position.h"
 
-enum GridStatus { _, B, W };
+enum GridStatus { EMPTY, BLACK, WHITE };
 
 struct Board
 {
@@ -304,13 +382,13 @@ Board::Board()
 {
     for(GridStatus& status: grids)
     {
-        status = _;
+        status = EMPTY;
     }
 
-    grids[e4] = B;
-    grids[d5] = B;
-    grids[d4] = W;
-    grids[e5] = W;
+    grids[e4] = BLACK;
+    grids[d5] = BLACK;
+    grids[d4] = WHITE;
+    grids[e5] = WHITE;
 }
 
 GridStatus Board::at(Position p) const
@@ -322,7 +400,7 @@ bool Board::isOccupied(Position p) const
 {
     if( ! onBoard(p)) return false;
 
-    return grids[p] == B || grids[p] == W;
+    return grids[p] == BLACK || grids[p] == WHITE;
 }
 
 bool Board::onBoard(Position p) const
@@ -339,12 +417,12 @@ void Board::turnOver(Position p)
 {
     if( ! isOccupied(p)) return;
 
-    grids[p] = (grids[p] == B) ? W : B;
+    grids[p] = (grids[p] == BLACK) ? WHITE : BLACK;
 }
 ```
 ---
 **REFACTOR**  
-我们发现Board中```grids[e4] = B;```,```grids[p] == B```等语义不是很好，应该抽象出Grid类，专门处理棋子状态
+我们发现Board中```grids[e4] = BLACK;```,```grids[p] == BLACK```等语义不是很好，应该抽象出Grid类，专门处理棋盘格状态
 
 ```cpp
 #include "gtest/gtest.h"
@@ -359,7 +437,7 @@ TEST(GirdTest, should_not_occupied_in_init_state)
 TEST(GirdTest, should_occupied_by_black_disk_when_place_black)
 {
     Grid grid;
-    grid.place(B);
+    grid.place(BLACK);
     ASSERT_TRUE(grid.isOccupied());
     ASSERT_TRUE(grid.isBlack());
 }
@@ -367,7 +445,7 @@ TEST(GirdTest, should_occupied_by_black_disk_when_place_black)
 TEST(GirdTest, should_occupied_by_white_disk_when_place_white)
 {
     Grid grid;
-    grid.place(W);
+    grid.place(WHITE);
     ASSERT_TRUE(grid.isOccupied());
     ASSERT_TRUE(grid.isWhite());
 }
@@ -375,7 +453,7 @@ TEST(GirdTest, should_occupied_by_white_disk_when_place_white)
 TEST(GirdTest, should_not_occupied_when_reset)
 {
     Grid grid;
-    grid.place(W);
+    grid.place(WHITE);
     grid.reset();
     ASSERT_FALSE(grid.isOccupied());
 }
@@ -386,7 +464,7 @@ TEST(GirdTest, should_turn_over_when_grid_is_occupided)
     grid.turnOver();
     ASSERT_FALSE(grid.isOccupied());
 
-    grid.place(W);
+    grid.place(WHITE);
     grid.turnOver();
     ASSERT_TRUE(grid.isBlack());
     grid.turnOver();
@@ -397,7 +475,7 @@ TEST(GirdTest, should_turn_over_when_grid_is_occupided)
 #ifndef _INCL_GRID_H_
 #define _INCL_GRID_H_
 
-enum GridStatus { _, B, W };
+enum GridStatus { EMPTY, BLACK, WHITE };
 
 struct Grid
 {
@@ -426,20 +504,20 @@ Grid::Grid()
 
 void Grid::place(GridStatus s)
 {
-    if(s == _) return;
+    if(s == EMPTY) return;
     status = s;
 }
 
 void Grid::reset()
 {
-    status = _;
+    status = EMPTY;
 }
 
 void Grid::turnOver()
 {
     if( ! isOccupied()) return;
 
-    status = isBlack() ? W : B;
+    status = isBlack() ? WHITE : BLACK;
 }
 
 bool Grid::isOccupied() const
@@ -449,12 +527,12 @@ bool Grid::isOccupied() const
 
 bool Grid::isBlack() const
 {
-    return status == B;
+    return status == BLACK;
 }
 
 bool Grid::isWhite() const
 {
-    return status == W;
+    return status == WHITE;
 }
 
 //Adapt BoardTest.cpp
@@ -500,7 +578,7 @@ TEST(BoardTest, should_return_false_given_out_of_range_of_a1_to_h8)
 TEST(BoardTest, should_place_disk_given_a_positon_in_the_board)
 {
     Board board;
-    board.place(a1, W);
+    board.place(a1, WHITE);
     ASSERT_TRUE(board.at(a1).isOccupied());
     ASSERT_TRUE(board.at(a1).isWhite());
 }
@@ -508,7 +586,7 @@ TEST(BoardTest, should_place_disk_given_a_positon_in_the_board)
 TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
 {
     Board board;
-    board.place(a1, W);
+    board.place(a1, WHITE);
     board.turnOver(a1);
     ASSERT_TRUE(board.at(a1).isOccupied());
     ASSERT_TRUE(board.at(a1).isBlack());
@@ -548,10 +626,10 @@ Board::Board()
         status.reset();
     }
 
-    grids[e4].place(B);
-    grids[d5].place(B);
-    grids[d4].place(W);
-    grids[e5].place(W);
+    grids[e4].place(BLACK);
+    grids[d5].place(BLACK);
+    grids[d4].place(WHITE);
+    grids[e5].place(WHITE);
 }
 
 Grid Board::at(Position p) const
@@ -620,7 +698,231 @@ Grid Board::at(Position p) const
 }
 
 ```
-到目前为止，```Board```类基本功能已经完成，后续如果有新的需求，根据需要在增加
+到目前为止，```Board```类基本功能已经完成，后续如果有新的需求，根据需要再增加.
+
+---
+接下来我们实现```Positions```类，```Positions```类为```Position```的集合，所以他具有集合类拥有的通用接口
+**FAIL**
+```cpp
+#include "gtest/gtest.h"
+#include "Positions.h"
+
+TEST(PositionsTest, should_empty_given_a_init_positions)
+{
+    ASSERT_TRUE(Positions().isEmpty());
+}
+
+TEST(PositionsTest, should_init_positions_given_position_lists)
+{
+    Positions one = {a1, b2};
+    Positions another{c3, d4};
+}
+
+TEST(PositionsTest, should_equals_given_a_same_position_list_which_the_order_is_not_sensitive)
+{
+    Positions one {a1, b2, c3};
+    Positions another {b2, c3, a1};
+    
+    ASSERT_EQ(one, another);
+    ASSERT_FALSE(one.isEmpty());
+}
+
+TEST(PositionsTest, should_not_equals_given_different_position_list)
+{
+    Positions one {a1, b2};
+    Positions another {a1};
+    Positions third {b2, a2};
+    
+    ASSERT_NE(one, another);
+    ASSERT_NE(one, third);
+    ASSERT_NE(another, third);
+}
+
+TEST(PositionsTest, should_push_position_to_positions)
+{
+    Positions EXPECT {a1, b2};
+
+    Positions positions;
+    ASSERT_NE(EXPECT, positions);
+
+    positions.push(a1);
+    positions.push(b2);
+
+    ASSERT_EQ(EXPECT, positions);
+}
+
+TEST(PositionsTest, should_pop_the_position_given_not_empty_positions)
+{
+    Positions GIVEN {a1, b2};
+    ASSERT_FALSE(GIVEN.isEmpty());
+
+    ASSERT_EQ(a1, GIVEN.pop());
+    ASSERT_EQ(b2, GIVEN.pop());
+    
+    ASSERT_TRUE(GIVEN.isEmpty());
+}
+
+TEST(PositionsTest, should_clear_the_positions_given_not_empty_positions)
+{
+    Positions GIVEN {a1, b2};
+    ASSERT_FALSE(GIVEN.isEmpty());
+
+    GIVEN.clear();
+
+    ASSERT_TRUE(GIVEN.isEmpty());
+}
+```
+
+**PASS**
+```cpp
+//Positions.h
+#ifndef _INCL_OTHELLO_POSITIONS_H_
+#define _INCL_OTHELLO_POSITIONS_H_
+
+#include "Position.h"
+#include <list>
+
+struct Positions
+{
+    Positions(std::initializer_list<Position> list = {});  
+
+    void push(Position);
+    Position pop();
+    void clear();
+
+    bool isEmpty() const; 
+    bool operator==(const Positions& rhs) const;
+    bool operator!=(const Positions& rhs) const;
+
+private:
+    bool contains(Position p) const;
+
+private:
+    std::list<Position> list;
+
+};
+
+#endif
+
+//Positions.cpp
+#include "Positions.h"
+#include <iostream>
+
+Positions::Positions(std::initializer_list<Position> positions)
+{
+    for(auto position : positions)
+    {
+        list.push_back(position);
+    }
+}
+
+bool Positions::isEmpty() const
+{
+    return list.size() == 0;
+}
+
+bool Positions::operator==(const Positions& rhs) const
+{
+    if(list.size() != rhs.list.size()) return false;
+
+    for(auto item : rhs.list)
+    {
+        if( ! contains(item)) return false;
+    }
+
+    return true;
+}
+
+bool Positions::operator!=(const Positions& rhs) const
+{
+    return !operator==(rhs);
+}
+
+bool Positions::contains(Position p) const
+{
+    for(auto item : list)
+    {
+        if(item == p) return true;
+    }
+
+    return false;
+}
+
+void Positions::push(Position p)
+{
+    list.push_back(p);
+}
+
+Position Positions::Positions::pop()
+{
+    Position front = list.front();
+    list.pop_front();
+    return front;
+}
+
+void Positions::clear()
+{
+    list.clear();
+}
+```
+**REFACTOR**
+```CPP
+Positions::Positions(std::initializer_list<Position> positions)
+{
+    for(auto position : positions)
+    {
+        list.push_back(position);
+    }
+}
+
+void Positions::push(Position p)
+{
+    list.push_back(p);
+}
+```
+```list.push_back(p);``` 存在重复，将其消除:
+```cpp
+Positions::Positions(std::initializer_list<Position> positions)
+{
+    for(auto position : positions)
+    {
+        push(position);
+    }
+}
+```
+---
+游戏规则及位置控制部分，我们目前还不清楚具体需求，我们先从游戏本身入手，发现职责不明晰时再进行抽离
+**FAIL**
+```cpp
+#include "gtest/gtest.h"
+#include "Reversi.h"
+
+struct ReversiTest : testing::Test
+{
+protected:
+    Reversi reversi;
+    
+};
+
+TEST_F(ReversiTest, should_get_a_board_from_reversi_equals_a_init_board)
+{
+    const Board EXPECT_INIT_BOARD;
+    ASSERT_EQ(EXPECT_INIT_BOARD, Reversi().getBoard());
+}
+
+TEST_F(ReversiTest, should_get_available_positions_given_a_valid_position_in_the_board)
+{
+    const Positions EXPECT_POSITIONS_OF_e4 = {c4, e6};
+    ASSERT_EQ(EXPECT_POSITIONS_OF_e4, Reversi().gitAvailablePositions(e4));
+
+    const Positions EXPECT_POSITIONS_OF_d5 = {d3, f5};
+    ASSERT_EQ(EXPECT_POSITIONS_OF_d5, Reversi().gitAvailablePositions(d5));
+}
+```
+**PASS**
+
+```cpp
+```
 
 
 [tdd]: images/clean-code-that-works/tdd.gif
