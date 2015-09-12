@@ -1,12 +1,13 @@
 # Simple Design
 liyongshun, zte.com.cn Inc.
 
+<!--![cover-zte](images/clean-code-that-works/zte-logo.jpg) -->
 ![cover](http://www.dvd-ppt-slideshow.com/images/ppt-background/background-6.jpg)
 ***
 
 ## 引言
 
-** 念念不忘,必有回响,有一口气,点一盏灯 ** -- 《一代宗师》
+** 念念不忘,必有回响,有一口气,点一盏灯 ** --
 
 
 ***
@@ -19,7 +20,7 @@ liyongshun, zte.com.cn Inc.
 ***
 
 ## 需求
- 1. 求解所有黑棋可落子位置（e.g. 黑棋可落子位置为：**d3, c4, f5, e6 ** ）
+ 1. 求解所有黑棋可落子位置（e.g. 黑棋可落子位置为：** d3, f5, c4, e6 ** ）
  2. 在某一位置落子后，翻转吃掉的子（e.g. 落子到 **d3** 后，白子 **d4** 被吃掉）
  3. 打印出所有可能落子后对应的棋局
  	![Dark Moves][othello-dark-moves] ![After dark play][after-dark-play]
@@ -33,7 +34,7 @@ liyongshun, zte.com.cn Inc.
 “还磨叽什么，直接开写，TDD，Write a test that fails”。
 我的理解：
 - 理清业务需求，根据经验，找到当前自己能找到的最好设计
-- 演进式的设计，通过Fail-Pass-Refactor方式逐渐找到问题的本质
+- 演进式的设计，尝试TDD，找到贴近需求的设计
 
 ***
 
@@ -108,13 +109,16 @@ TEST(ReversiWithSpecificSetTest, should_turn_over_the_captured_disk_given_a_avai
 ***
 
 ## 回到问题, 分析下有哪些概念
-+ 棋盘（Board）: 棋盘由8X8方格(Grid)组成，每个空格可以有三种状态，空闲，放黑棋，放白棋，默认棋盘在e4, d5位置(Position)放置黑棋，在d4, e5位置放置白棋
-+ 棋子（Disk）：黑棋（Black），白棋（White）
++ 棋盘（Board）: 
+  棋盘由8X8方格(Grid)组成，每个空格可以有三种状态，空闲，放黑棋，放白棋，默认棋盘在e4, d5位置(Position)放置黑棋，在d4, e5位置放置白棋
++ 棋子（Disk）：
+  黑棋（Black），白棋（White）
 + 规则（Rules）:
-	Rule-1. 一方在某个位置落子必须能够夹对方一个或多个连续棋子
-	Rule-2. 可以横着夹，竖着夹，斜着夹
-	Rule-3. 被夹住的棋子需要进行翻转
-+ 位置控制：可以向上，下，左，右，左上，左下，右上，右下 8个方向进行搜索，在棋盘上搜索空间最大为7，超出则越界。
+  Rule-1. 一方在某个位置落子必须能够夹对方一个或多个连续棋子;
+  Rule-2. 可以横着夹，竖着夹，斜着夹; 
+  Rule-3. 被夹住的棋子需要进行翻转
++ 位置控制：
+  可以向上，下，左，右，左上，左下，右上，右下 8个方向进行搜索，在棋盘上搜索空间最大为7，超出则越界。
 
 ***
 
@@ -434,59 +438,7 @@ private:
 //Adapt BoardTest.cpp
 #include "gtest/gtest.h"
 #include "Board.h"
-
-TEST(BoardTest, should_init_board_with_black_in_e4_d5_and_white_in_d4_e5)
-{
-    Board board;
-    ASSERT_TRUE(board.at(e4).isBlack());
-    ASSERT_TRUE(board.at(d5).isBlack());
-    ASSERT_TRUE(board.at(d4).isWhite());
-    ASSERT_TRUE(board.at(e5).isWhite());
-}
-
-TEST(BoardTest, should_not_occupied_except_e4_d5_d4_e5)
-{
-    Board board;
-    ASSERT_FALSE(board.isOccupied(a1));
-    ASSERT_FALSE(board.isOccupied(h8));
-}
-
-TEST(BoardTest, should_return_ture_given_a1_to_h8)
-{
-    Board board;
-    ASSERT_TRUE(board.onBoard(a1));
-    ASSERT_TRUE(board.onBoard(h8));
-}
-
-TEST(BoardTest, should_return_false_given_out_of_range_of_a1_to_h8)
-{
-    Board board;
-    Position lessThana1 = static_cast<Position>(a1-1);
-    Position moreThanh8 = static_cast<Position>(h8+1);
-    ASSERT_FALSE(board.onBoard(lessThana1));
-    ASSERT_FALSE(board.onBoard(moreThanh8));
-    ASSERT_FALSE(board.isOccupied(lessThana1));
-    ASSERT_FALSE(board.isOccupied(moreThanh8));
-    ASSERT_FALSE(board.at(lessThana1).isOccupied());
-    ASSERT_FALSE(board.at(moreThanh8).isOccupied());
-}
-
-TEST(BoardTest, should_place_disk_given_a_positon_in_the_board)
-{
-    Board board;
-    board.place(a1, WHITE);
-    ASSERT_TRUE(board.at(a1).isOccupied());
-    ASSERT_TRUE(board.at(a1).isWhite());
-}
-
-TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
-{
-    Board board;
-    board.place(a1, WHITE);
-    board.turnOver(a1);
-    ASSERT_TRUE(board.at(a1).isOccupied());
-    ASSERT_TRUE(board.at(a1).isBlack());
-}
+//adapt BoardTest.cpp ...
 
 //Board.h
 #ifndef _INCL_BOARD_H_
@@ -497,17 +449,9 @@ TEST(BoardTest, should_turn_over_given_a_valied_positon_which_is_occupided)
 
 struct Board
 {
-    Board();
-    void place(Position, GridStatus);
-    void turnOver(Position);
-
-    Grid at(Position p) const;
-    bool isOccupied(Position) const;
+	...
     bool onBoard(Position) const;
-
-private:
-    enum {MAX_GRID_NUM = h8+1 };
-    Grid grids[MAX_GRID_NUM];
+	...
 };
 
 #endif
@@ -842,7 +786,7 @@ const Positions& Reversi::gitAvailablePositions(Position p)
     return availablePositions;
 }
 ```
-至此，需求一实现完成，接下来我们实现需求二
+单个位置的棋步求解完成
 ```cpp
 struct ReversiWithSpecificSetTest : ReversiTest
 {
@@ -1036,25 +980,7 @@ void Board::print() const
 }
 
 ```
-a b c d e f g h
-B _ _ _ _ _ _ _  1
-B _ _ _ _ _ _ _  2
-B _ B _ B _ _ _  3
-_ _ _ W W B _ _  4
-_ _ _ _ W W _ _  5
-_ _ _ _ _ _ _ _  6
-_ _ _ _ _ _ _ _  7
-_ W W W B _ _ _  8
-
-a b c d e f g h
-B _ _ _ _ _ _ _  1
-W _ _ _ _ _ _ _  2
-_ _ B _ B _ _ _  3
-_ _ _ B W B _ _  4
-_ _ _ _ B B _ _  5
-_ _ _ _ _ B _ _  6
-_ _ _ _ _ _ _ _  7
-_ W W W B _ _ _  8
+![board-result](images/clean-code-that-works/board-result.jpg)
 ...
 
 至此需求已经全部完成，设计是否OK了，看看如下代码：
@@ -1247,33 +1173,31 @@ const Positions& Reversi::gitAvailablePositions(Position p)
 利润 ＝ 收益 － 成本
 成本：内在成本，偶发成本
 + 写代码
-+ 改代码
++ 改代码（扩展）
 + 读代码（理解）
-+ 分析、定位、解决故障
-+ 重复测试
++ 分析、定位、解决故障（那个阶段发现的问题）
++ 验证（回归测试）
 
 ***
 
 ## 价值观－演进式设计
 
-问题思考 － 建模 － 细节 － 解决问题 － 重构 －>
-
-经验 ＋ 解决问题
-
-好的架构是浮现出来的
+![evo-design](images/clean-code-that-works/evo-design.jpg)
 
 ***
 
 ## 如何做到简单设计
-简单设计四原则：
-OLD:
-+ Run all testes
-+ ...
+简单设计四原则(Kent beck)： 
+
+1. Passes all the tests.
+2. no duplication.
+3. Expresses developer intent
+4. Minimized the number of classes, methods
 
 ***
 
 ## 原则－简单设计四原则
-
+2015 [Martin Fowler BeckDesignRules](http://martinfowler.com/bliki/BeckDesignRules.html) 
 + Passes the tests
 + Reveals intention
 + No duplication
@@ -1281,40 +1205,58 @@ OLD:
 
 ***
 
+## 原则－简单设计四原则
+
+![simple-design-4-roles](images/clean-code-that-works/simpleDesignPrinciple.jpg)
+
+***
+
 ## 实践－TDD理解
 
-- 设计即解决问题
-- 面相接口编程
-- 代码天生具有可测试性
+- 面向问题域
+- 面相接口
+- 天生具有可测试性
 - 缩短故障反馈周期
 - 用例设计很重要
 ***
 
-## 测试驱动开发是否可以驱动出领域模型
-经验 ＋ 用例设计 
-
-***
 ## 实践－重构的理解
-打扫房间
+![clean-the-room](images/clean-code-that-works/clean-the-room.jpg)
 
 ***
 ## 实践－CleanCode关注点
 ![Mind map][clean-code]
-[clean-code]: images/clean-code-that-works/cleanCode.png "CleanCode MindMap"
+[clean-code]: images/clean-code-that-works/cleanCode_.jpg "CleanCode MindMap"
 
-***
-
-## ClanCode能否解决业务本质复杂度
-更容易产生领域模型
 ***
 
 ## CleanCode的价值
 
-减少偶发成本
++ 降低偶发成本
+	+ 理解
+	+ 修改
+	+ 解决故障
+	+ 易测试 	
++ 更容易产生领域模型
 
 ***
 
-## 最后一个问题
+## 软件能力能力模型
+
+![tech-groth-model](images/clean-code-that-works/tech-growth-model-II-zh.png)
+
+***
+整体分为6个Level:
+1. 符合团队编码规范要求，能够胜任基本编码工作
+2. 能够写出整洁、易理解的代码，对代码细节有追求
+3. 灵活使用设计原则、设计模式解决代码级设计问题
+4. 能熟练掌握至少一种设计范性，具备组合式设计及正交设计能力
+5. 能够架构选型或运用演进式设计，设计出符合领域的软件架构
+6. 针对特定领域，提出业界领先的软件解决方案
+
+***
+
+## 最后一个测试
 
 TEST（通过今天的沙龙大家设计能力会有很大提高么）
 {
@@ -1322,15 +1264,13 @@ TEST（通过今天的沙龙大家设计能力会有很大提高么）
 
 *** 
 ## 别急，重构下你的答案
-+ 方向指导
-+ 悟，修炼
 
+#子曰：“学而不思则罔，思而不学则殆”
 
-***
-
-## 软件能力能力模型
++ 方向
++ 修炼
 
 ***
 
-## 
   #Thanks
+  #欢迎持续关注 WXCOP
