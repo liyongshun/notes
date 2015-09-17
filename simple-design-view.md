@@ -1,7 +1,7 @@
 # Simple Design
 liyongshun, zte.com.cn Inc.
 
-<!--![cover-zte](images/clean-code-that-works/zte-logo.jpg) -->
+<!--![cover-zte](images/simple-design/zte-logo.jpg) -->
 ![cover](http://www.dvd-ppt-slideshow.com/images/ppt-background/background-6.jpg)
 ***
 
@@ -15,7 +15,7 @@ liyongshun, zte.com.cn Inc.
 ## 翻转棋([Reversi](https://en.wikipedia.org/wiki/Reversi))
 黑白棋，又叫反棋（Reversi），游戏通过相互翻转对方的棋子，最后以棋盘上谁的棋子多来判断胜负。它的游戏规则简单，因此上手很容易，但是它的变化又非常复杂。
 给定棋局（初始棋盘）：  ![Othello Board][othello-init]
-[othello-init]: images/clean-code-that-works/othelloInit.png
+[othello-init]: images/simple-design/othelloInit.png
 
 ***
 
@@ -24,8 +24,8 @@ liyongshun, zte.com.cn Inc.
  2. 在某一位置落子后，翻转吃掉的子（e.g. 落子到 **d3** 后，白子 **d4** 被吃掉）
  3. 打印出所有可能落子后对应的棋局
  	![Dark Moves][othello-dark-moves] ![After dark play][after-dark-play]
-[othello-dark-moves]: images/clean-code-that-works/darkMoves.png
-[after-dark-play]: images/clean-code-that-works/afterDarkPlay.png
+[othello-dark-moves]: images/simple-design/darkMoves.png
+[after-dark-play]: images/simple-design/afterDarkPlay.png
 
 ***
 
@@ -124,7 +124,7 @@ TEST(ReversiWithSpecificSetTest, should_turn_over_the_captured_disk_given_a_avai
 
 ## 实践：测试驱动开发
 ![Tdd][tdd]
-[tdd]: images/clean-code-that-works/tdd.gif
+[tdd]: images/simple-design/tdd.gif
 ***
 
 ## TDD
@@ -980,7 +980,7 @@ void Board::print() const
 }
 
 ```
-![board-result](images/clean-code-that-works/board-result.jpg)
+![board-result](images/simple-design/board-result.jpg)
 ...
 
 至此需求已经全部完成，设计是否OK了，看看如下代码：
@@ -1182,7 +1182,7 @@ const Positions& Reversi::gitAvailablePositions(Position p)
 
 ## 价值观－演进式设计
 
-![evo-design](images/clean-code-that-works/evo-design.jpg)
+![evo-design](images/simple-design/evo-design.jpg)
 
 ***
 
@@ -1207,7 +1207,7 @@ const Positions& Reversi::gitAvailablePositions(Position p)
 
 ## 原则－简单设计四原则
 
-![simple-design-4-roles](images/clean-code-that-works/simpleDesignPrinciple.jpg)
+![simple-design-4-roles](images/simple-design/simpleDesignPrinciple.jpg)
 
 ***
 
@@ -1221,12 +1221,12 @@ const Positions& Reversi::gitAvailablePositions(Position p)
 ***
 
 ## 实践－重构的理解
-![clean-the-room](images/clean-code-that-works/clean-the-room.jpg)
+![clean-the-room](images/simple-design/clean-the-room.jpg)
 
 ***
 ## 实践－CleanCode关注点
 ![Mind map][clean-code]
-[clean-code]: images/clean-code-that-works/cleanCode_.jpg "CleanCode MindMap"
+[clean-code]: images/simple-design/cleanCode_.jpg "CleanCode MindMap"
 
 ***
 
@@ -1243,7 +1243,7 @@ const Positions& Reversi::gitAvailablePositions(Position p)
 
 ## 软件能力能力模型
 
-![tech-groth-model](images/clean-code-that-works/tech-growth-model-II-zh.png)
+![tech-groth-model](images/simple-design/tech-growth-model-II-zh.png)
 
 ***
 整体分为6个Level:
