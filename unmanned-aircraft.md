@@ -15,6 +15,12 @@
 + 当Aircraft位于地面时(z为0时)，执行DOWN指令无响应
 
 例如:Aircraft位于(0,0,5,N),当收到UP时，新的位置为(0,0,6,N)，继续收到DOWN时，新的位置为(0,0,5,N)，继续收到FORWARD时，新的位置为(0,1,5,N)
+### Sprint-I 关注点
++ 用户接口定义
++ 测试用例设计
++ 测试用例表达力
++ 变化方向：无人机位置－坐标变化
+
 ### Sprint-I Test Case:
 ```cpp
 #include "gtest/gtest.h"
@@ -270,6 +276,14 @@ Instruction& Instructions::forward()
 + 当Aircraft收到ROUND指令后，顺时针旋转180度
 
 例如:Aircraft位于(0,0,0,N)，当收到LEFT时，新的位置为(0,0,0,W)，继续收到ROUND，新的位置为(0,0,0,E)，继续收到RIGHT后，新的位置为(0,0,0,S)
+
+### Sprint-II 关注点
++ 变化方向：无人机位置－朝向变化
++ 依赖管理：FORWARD对朝向的依赖
++ Position类职责保持单一
++ 朝向与坐标值对象语义抽象
++ 对枚举类型朝向(East,South,West,North)顺序依赖的脆弱性
+
 ```cpp
 namespace
 {
@@ -696,6 +710,9 @@ Instruction& Instructions::round()
 + 当Aircraft收到DOWN_N(n)指令后，向下移动n个坐标
 
 例如:Aircraft位于(0,0,0,N)，当收到FORWARD_N(10)，新的位置为(0,10,0,N)，继续收到UP_N(10)，新的位置为(0,10,10,N)，继续收到DOWN_N(5)，新的位置为(0,10,5,N)
+### Sprint-III 关注点
++ 变化方向：坐标移动次数
++ 坐标的变化符合开闭原则
 
 ```cpp
 
@@ -779,6 +796,12 @@ Instruction& Instructions::repeat(const Instruction& ins, int n)
 + instruction指令是除REPEAT指令之外的任意指令，n的范围为[0,10]
 
 例如:Aircraft位于(0,0,0,N)，收到REPEAT(FORWARD,5)，新的位置为(0,5,0,N)，继续收到REPEAT(LEFT,1)，新的位置为(0,5,0,W)，继续收到REPEAT(FORWARD,5)，新的位置为(-5,5,0,W)，继续收到REPEAT(UP,5)，新的位置为(-5,5,5,W)
+
+### Sprint-IV 关注点
++ 测试用例消除重复
++ Position 语义简化
++ Instruction 组合式设计
+
 ```cpp
 _TEST(aircraft_should_execute_instructions_repeative_when_receive_REPEAT_INSTRUCTION_N)
 {
