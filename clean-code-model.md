@@ -71,12 +71,105 @@
 
 #### 1.1.1 横向格式
 使用**空格**对内容进行分隔，使用锯齿缩紧对代码段进分隔
-~~此处插入**横向格式**代码对比~~
+反例：
+```java
+public String toString() {
+Point point=new Point();
+StringBuilder sb=new StringBuilder();
+sb.append("A B C D E F G H");
+for(point.x=0;point.x<BOARD_LENGTH;point.x++){
+sb.append('\n').append(point.x + 1);
+for(point.y=0;point.y<BOARD_WIDTH;point.y++){
+sb.append(' ').append(board.get(point).symbol());
+}
+}
+sb.append('\n');
+return sb.toString();
+}
+```
+正例：
+```java
+public String toString() {
+    Point point = new Point();
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("  A B C D E F G H");
+    for (point.x = 0; point.x < BOARD_LENGTH; point.x++) {
+        sb.append('\n').append(point.x + 1);
+        for (point.y = 0; point.y < BOARD_WIDTH; point.y++) {
+            sb.append(' ').append(board.get(point).symbol());
+        }
+    }
+    sb.append('\n');
+    
+    return sb.toString();
+}
+```
+- - -
 
 #### 1.1.2 纵向格式
 使用**空行**对内容进行分隔，函数或类的方法不要太长，尽量能一览无余
-~~此处插入**纵向格式**代码对比~~
+反例：
+```java
+public class ComparisonCompactor {
+public class ComparisonCompactor {
+    private static final String ELLIPSIS = "...";
+    private static final String DELTA_END = "]";
+    private static final String DELTA_START = "[";
+    private int fContextLength;
+    private String fExpected;
+    private String fActual;
+    private int fPrefix;
+    private int fSuffix;
+    @SuppressWarnings("deprecation")
+    public String compact(String message) {
+        if (fExpected == null || fActual == null || areStringsEqual()) {
+            return Assert.format(message, fExpected, fActual);
+        }
+        findCommonPrefix();
+        findCommonSuffix();
+        String expected = compactString(fExpected);
+        String actual = compactString(fActual);
+        return Assert.format(message, expected, actual);
+    }
+    private boolean areStringsEqual() {
+        return fExpected.equals(fActual);
+    }
+}
+```
+正例：
+```java
+public class ComparisonCompactor {
 
+    private static final String ELLIPSIS = "...";
+    private static final String DELTA_END = "]";
+    private static final String DELTA_START = "[";
+
+    private int fContextLength;
+    private String fExpected;
+    private String fActual;
+    private int fPrefix;
+    private int fSuffix;
+
+    @SuppressWarnings("deprecation")
+    public String compact(String message) {
+        if (fExpected == null || fActual == null || areStringsEqual()) {
+            return Assert.format(message, fExpected, fActual);
+        }
+
+        findCommonPrefix();
+        findCommonSuffix();
+        String expected = compactString(fExpected);
+        String actual = compactString(fActual);
+        
+        return Assert.format(message, expected, actual);
+    }
+
+    private boolean areStringsEqual() {
+        return fExpected.equals(fActual);
+    }
+}
+```
 ### 1.2 注释
 遵循原则：
 + 尽量不写注释，尝试用代码自阐述
@@ -89,32 +182,156 @@
 
 #### 1.2.1 好的注释
 1. 法律、版权信息
-~~此处插入**版权信息**代码~~  
+```cpp
+# /* **************************************************************************
+#  *                                                                          *
+#  *     (C) Copyright Paul Mensonides 2002.
+#  *     Distributed under the Boost Software License, Version 1.0. (See
+#  *     accompanying file LICENSE_1_0.txt or copy at
+#  *     http://www.boost.org/LICENSE_1_0.txt)
+#  *                                                                          *
+#  ************************************************************************** */
+#
+# /* See http://www.boost.org for most recent version. */
+#
+# ifndef BOOST_PREPROCESSOR_SEQ_FOR_EACH_HPP
+# define BOOST_PREPROCESSOR_SEQ_FOR_EACH_HPP
+#
+# include <boost/preprocessor/arithmetic/dec.hpp>
+# include <boost/preprocessor/config/config.hpp>
+# include <boost/preprocessor/repetition/for.hpp>
+# include <boost/preprocessor/seq/seq.hpp>
+# include <boost/preprocessor/seq/size.hpp>
+# include <boost/preprocessor/tuple/elem.hpp>
+# include <boost/preprocessor/tuple/rem.hpp>
+#
+```
 2. 陷阱、警示
-~~此处插入**陷阱、警示**代码~~  
+```cpp
+#if (defined(BOOST_MSVC) || (defined(BOOST_INTEL) && defined(_MSC_VER))) && _MSC_VER >= 1300
+//
+// MSVC supports types which have alignments greater than the normal
+// maximum: these are used for example in the types __m64 and __m128
+// to provide types with alignment requirements which match the SSE
+// registers.  Therefore we extend type_with_alignment<> to support
+// such types, however, we have to be careful to use a builtin type
+// whenever possible otherwise we break previously working code:
+// see http://article.gmane.org/gmane.comp.lib.boost.devel/173011
+// for an example and test case.  Thus types like a8 below will
+// be used *only* if the existing implementation can't provide a type
+// with suitable alignment.  This does mean however, that type_with_alignment<>
+// may return a type which cannot be passed through a function call
+// by value (and neither can any type containing such a type like
+// Boost.Optional).  However, this only happens when we have no choice 
+// in the matter because no other "ordinary" type is available.
+//
+```
 3. 意图解释
-~~此处插入**意图解释**代码~~  
-4. 性能优化代码
-~~此处插入**性能优化代码**代码~~  
-5. 不易理解代码
-~~此处插入**不易理解代码**代码~~  
+```cpp
+// Borland specific version, we have this for two reasons:
+// 1) The version above doesn't always compile (with the new test cases for example)
+// 2) Because of Borlands #pragma option we can create types with alignments that are
+// greater that the largest aligned builtin type.
 
+    namespace align
+    {
+        #pragma option push -a16
+        struct a2{ short s; };
+        struct a4{ int s; };
+        struct a8{ double s; };
+        struct a16{ long double s; };
+        #pragma option pop
+    }
+```
+4. 性能优化代码
+```cpp
+// Fast version of "hash = (65599 * hash) + c"
+hash = (hash << 6) + (hash << 16) - hash + c;
+```
+5. 不易理解代码
+```cpp
+// kk::mm::ss, MM dd, yyyy
+std::string timePattern = "\\d{2}:\\d{2}:\\d{2}, \\d{2} \\d{2}, \\d{4}";
+```
+---
 #### 1.2.2 不好的注释
 1. 日志型注释 -> 使用源码管理工具记录  
 ~~此处插入**日志型注释对比**代码~~  
 2. 归属、签名 -> 源码管理工具自动记录
 ~~此处插入**归属、签名对比**代码~~  
 3. 注释掉的代码 -> 删除，使用源码管理工具保存
-~~此处插入**注释代码**代码~~  
+```java
+	public Point evalMove() {
+		AbstractSearcher searcher;
+		Evaluation evalfunc;
+		searcher = new NegaMax();
+        //evalfunc = new ScoreEval();
+		evalfunc = new ScoreDiffEval();
+        //evalfunc = new ScoreCornerWeightEval();
+		return searcher.simpleSearch(board, player, depth, evalfunc).getPoint();
+	}
+```
 4. 函数头 -> 尝试使用更好的函数名，更好参数名，更少参数替换注释
 ~~此处插入**函数头对比**代码~~  
 5. 位置标记 -> 删除，简化逻辑
-~~此处插入**位置标记**代码~~  
+```java
+	public static Set<Point> explore(final Board board, final SquareState state) {
+		Set<Point> possibleMoves = new HashSet<Point>();
+		Set<Point> statePoints = board.getSquares(state);
+		for (Point seed : statePoints) {
+			for (Direction direction : Direction.values()) {
+				if (shouldSearch(board, seed, direction)) {
+					Point nextPoint = direction.next(seed);
+					nextPoint = direction.next(nextPoint);
+					while (pointIsValid(nextPoint)) {
+						if (board.getSquareState(nextPoint) == state) {
+							break;
+						} else if (board.getSquareState(nextPoint) == SquareState.EMPTY) {
+							possibleMoves.add(nextPoint);
+							break;
+						}//end if
+						nextPoint = direction.next(nextPoint);
+					} //end while
+				} //end if
+			} //end for
+		} //end for
+		return possibleMoves;
+	}
+```
 6. 过时、误导性注释 -> 删除
-~~此处插入**过时、误导**代码~~  
+```java
+// Utility method that returns when this.closed is true. Throws an exception 
+// if the timeout is reached.
+public synchronized void waitForClose(final long timeoutMillis) throws Exception 
+{
+    if(!closed) 
+    {
+        wait(timeoutMillis); 
+        if(!closed)
+        throw new Exception("MockResponseSender could not be closed"); 
+    }
+}
+```
 7. 多余、废话注释 -> 删除
-~~此处插入**多余、废话**代码~~  
+```cpp
+class GTEST_API_ AssertionResult 
+{
+    public:
+    // Copy constructor.
+    // Used in EXPECT_TRUE/FALSE(assertion_result).
+    AssertionResult(const AssertionResult& other);
+    // Used in the EXPECT_TRUE/FALSE(bool_expression).
+    explicit AssertionResult(bool success) : success_(success) {}
 
+    // Returns true iff the assertion succeeded.
+    operator bool() const { return success_; }  // NOLINT
+
+    private:
+    // Stores result of the assertion predicate.
+    bool success_;
+};
+```
+---
 ### 1.3 物理设计
 遵循原则：
 + 头文件编译自满足（C/C++)
@@ -130,31 +347,282 @@
 
 #### 1.3.1 头文件编译自满足(C/C++)
 对于C/C++语言头文件编译自满足，即头文件可以单独编译成功。
-~~此处插入**头文件编译自满足**代码~~  
+反例：
+```cpp
+#ifndef _INCL_POSITION_H_
+#define _INCL_POSITION_H_
+
+#include "base/Role.h"
+
+struct Position : Coordinate, Orientation
+{
+    Position(int x, int y, int z, const Orientation& d);
+    bool operator==(const Position& rhs) const;
+
+    IMPL_ROLE(Coordinate);
+    IMPL_ROLE(Orientation);
+};
+
+#endif
+```
+正例：
+```cpp
+#ifndef _INCL_POSITION_H_
+#define _INCL_POSITION_H_
+
+#include "Coordinate.h"
+#include "Orientation.h"
+#include "base/Role.h"
+
+struct Position : Coordinate, Orientation
+{
+    Position(int x, int y, int z, const Orientation& d);
+    bool operator==(const Position& rhs) const;
+
+    IMPL_ROLE(Coordinate);
+    IMPL_ROLE(Orientation);
+};
+
+#endif
+
+```
 
 #### 1.3.2 文件设计职责单一
 文件设计职责单一，是指文件中对于对于用户公开的信息，应该是一个概念，避免把不相关的概念糅合在一个文件中，文件间增加不必要的依赖
-~~此处插入**头文件编译自满足**代码~~  
+反例：
+```cpp
+//UnmannedAircraft.h
+#ifndef _INCL_UNMANNED_AIRCRAFT_H_
+#define _INCL_UNMANNED_AIRCRAFT_H_
+
+#include "Coordinate.h"
+#include "Orientation.h"
+#include "base/Role.h"
+
+struct Instruction;
+
+struct Position : Coordinate, Orientation
+{
+    Position(int x, int y, int z, const Orientation& d);
+    bool operator==(const Position& rhs) const;
+
+    IMPL_ROLE(Coordinate);
+    IMPL_ROLE(Orientation);
+};
+
+struct UnmannedAircraft
+{
+    UnmannedAircraft();
+    void on(const Instruction&);
+    const Position& getPosition() const;
+
+private:
+    Position position;
+};
+
+#endif
+```
+正例：
+```cpp
+//Position.h
+#ifndef _INCL_POSITION_H_
+#define _INCL_POSITION_H_
+
+#include "Coordinate.h"
+#include "Orientation.h"
+#include "base/Role.h"
+
+struct Position : Coordinate, Orientation
+{
+    Position(int x, int y, int z, const Orientation& d);
+    bool operator==(const Position& rhs) const;
+
+    IMPL_ROLE(Coordinate);
+    IMPL_ROLE(Orientation);
+};
+
+#endif
+```
+```cpp
+//UnmannedAircraft.h
+#ifndef _INCL_UNMANNED_AIRCRAFT_H_
+#define _INCL_UNMANNED_AIRCRAFT_H_
+
+#include "Position.h"
+
+struct Instruction;
+
+struct UnmannedAircraft
+{
+    UnmannedAircraft();
+    void on(const Instruction&);
+    const Position& getPosition() const;
+
+private:
+    Position position;
+};
+
+#endif
+```
 
 #### 1.3.3 仅包含需要的文件
 1. 文件设计时，应遵循最小依赖原则，仅包含必须的文件即可。
-~~此处插入**头文件编译自满足**代码~~  
+    反例：
+    ```cpp
+    #ifndef _INCL_UNMANNED_AIRCRAFT_H_
+    #define _INCL_UNMANNED_AIRCRAFT_H_
 
+    #include "Position.h"
+    #include "Orientation.h"
+	#include "Coordinate.h"
+    #include "Instruction.h"
+
+    struct UnmannedAircraft
+    {
+        UnmannedAircraft();
+        void on(const Instruction&);
+        const Position& getPosition() const;
+
+    private:
+        Position position;
+    };
+
+    #endif
+    ```
+	正例：
+    ```cpp
+    #ifndef _INCL_UNMANNED_AIRCRAFT_H_
+    #define _INCL_UNMANNED_AIRCRAFT_H_
+
+    #include "Position.h"
+
+    struct Instruction;
+
+    struct UnmannedAircraft
+    {
+        UnmannedAircraft();
+        void on(const Instruction&);
+        const Position& getPosition() const;
+
+    private:
+        Position position;
+    };
+    #endif
+    ```
 2. 特别的，对于C++而言，可以使用类或者结构体前置声明，而不包含头文件，降低编译依赖。该类依赖被称为弱依赖，编译时不需要知道实体的真实大小，仅提供一个符号即可，主要有：
 + 指针
 + 引用
 + 返回值
 + 函数参数
+    反例：
+    ```cpp
+    #ifndef _INCL_INSTRUCTION_H_
+    #define _INCL_INSTRUCTION_H_
 
-~~此处插入**头文件编译自满足**代码~~  
+    #include "Coordinate.h"
+    #include "Orientation.h"
 
+    struct Instruction
+    {
+        virtual void exec(Coordinate&, Orientation&) const = 0; 
+        virtual ~Instruction() {}
+    };
+
+    #endif
+    ```
+    正例：
+    ```cpp
+    #ifndef _INCL_INSTRUCTION_H_
+    #define _INCL_INSTRUCTION_H_
+
+    struct Coordinate;
+    struct Orientation;
+
+    struct Instruction
+    {
+        virtual void exec(Coordinate&, Orientation&) const = 0; 
+        virtual ~Instruction() {}
+    };
+
+    #endif
+    ```
 #### 1.3.4 仅公开用户需要的接口
 1. 文件设计时，应遵循信息隐藏原则，仅公开用户需要的接口，对于其他信息尽量隐藏，以减少不必要的依赖。
-~~此处插入**头文件编译自满足**代码~~  
-
+    反例：
+    ```cpp
+    struct RepeatableInstruction : Instruction
+    {
+        RepeatableInstruction(const Instruction&, int n);   
+        virtual void exec(Coordinate&, Orientation&) const; 
+        bool isOutOfBound() const;
+    private:
+        const Instruction& ins;
+        const int n;
+    };
+    ```
+    正例：
+    ```cpp
+    struct RepeatableInstruction : Instruction
+    {
+        RepeatableInstruction(const Instruction&, int n);   
+    private:
+        virtual void exec(Coordinate&, Orientation&) const; 
+        bool isOutOfBound() const;
+    private:
+        const Instruction& ins;
+        const int n;
+    };
+    ```
 2. 特别的，对于C可以使用static对全局变量、函数等进行隐藏，对于支持面向对象语言则使用其封装特性即可。
-~~此处插入**头文件编译自满足**代码~~  
+    反例：
+    ```cpp
+    BOOLEAN isGbr(BYTE qci)
+    {
+        return qci >= 1 && qci <= 4;
+    }
 
+    BOOLEAN isGbrBitRateValid(const GbrIE* gbrIE)
+    {
+        ASSERT_VALID_PTR_BOOL(gbrIE);
+
+        return gbrIE->dlGbr <= gbrIE->dlMbr &&
+               gbrIE->ulGbr <= gbrIE->ulMbr;
+    }
+
+    BOOLEAN isGbrIEValid(const QosPara* qosPara)
+    {
+        if(!isGbr(qosPara->qci)) return TRUE;
+
+        if(qosPara->grbIEPresent == 0) return TRUE;
+
+        return isGbrBitRateValid(&qosPara->gbrIE);
+    }
+    ```
+    正例：
+    ```cpp
+    static BOOLEAN isGbr(BYTE qci)
+    {
+        return qci >= 1 && qci <= 4;
+    }
+
+    static BOOLEAN isGbrBitRateValid(const GbrIE* gbrIE)
+    {
+        ASSERT_VALID_PTR_BOOL(gbrIE);
+
+        return gbrIE->dlGbr <= gbrIE->dlMbr &&
+               gbrIE->ulGbr <= gbrIE->ulMbr;
+    }
+
+    BOOLEAN isGbrIEValid(const QosPara* qosPara)
+    {
+        if(!isGbr(qosPara->qci)) return TRUE;
+
+        if(qosPara->grbIEPresent == 0) return TRUE;
+
+        return isGbrBitRateValid(&qosPara->gbrIE);
+    }
+    ```
+---
 ## II 进阶级
 进阶级主要包括命名、测试设计、数据结构及对象设计，该部分要求编码时关注到更多细节，从语义层次提升代码的可理解性。
 ### 2.1 命名
@@ -184,6 +652,7 @@
 #### 2.1.2 风格统一的命名规范
 社区有很多种类的命名规范，很难找到一种令所有人都满意，如下规范仅供参考：
 | Type | Examples |
+|------|----------|
 | namespace/package | std, details, lang|
 | struct/union/class | List, Map, HttpServlet |
 | function/method | add, binarySearch, lastIndexOfSubList |
