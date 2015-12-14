@@ -1,56 +1,8 @@
-# Clean Code Model
+# Clean Code Examples
 
-## I 基础级
-+ ### 格式
-	+ #### 横向格式
-	+ #### 纵向格式
-+ ### 注释
-	+ #### 好的注释
-	+ #### 不好的注释
-+ ### 物理设计
-	+ #### 头文件编译自满足
-	+ #### 文件设计职责单一
-	+ #### 仅包含需要的文件
-	+ #### 仅公开用户需要的接口
----
-## II 进阶级
-+ ### 命名
-	+ #### 关注点
-	+ #### 风格统一的命名规范
-	+ #### 避免在命名中使用编码
-	+ #### 名称区分问题域与实现域
-+ ### 测试
-	+ #### 风格统一的测试场景描述
-	+ #### 每个测试用例测试一个场景
-	+ #### 一组测试场景封装为一个测试套
-	+ #### 尝试使用DSL表达测试场景
-+ ### 对象和数据结构
-	+ #### 区分数据结构与对象的使用场景
-	+ #### 避免在对象中使用getter & setter方法
-	+ #### 避免在对象中暴露成员变量
-	+ #### 避免在数据结构中添加行为
----
-## III 高阶级
-+ ### 函数
-	+ #### 每个函数只做一件事
-	+ #### 函数内语句同一抽象层次
-	+ #### 尽量避免三个以上的函数参数
-	+ #### 区分查询函数与指令函数
-	+ #### 消除重复的函数
+[TOC]
 
-+ ### 类
-	+ #### 设计职责单一的类
-	+ #### 避免方法过多的接口
-	+ #### 避免方法过多的类（上帝类）
-	+ #### 避免过多的继承层次
-+ ### 系统
-	+ #### 合理的对系统进行分层
-	+ #### 定义清晰的模块边界及职责
-	+ #### 分离构造与使用
-	+ #### 考虑系统性能
-<<<<<<< HEAD
----
-# CleanCode Examples
+* * *
 
 “Clean Code That Works”，来自于Ron Jeffries这句箴言指导我们写的代码要整洁有效，Kent Beck把它作为TDD（Test Driven Development）追求的目标，BoB大叔（Robert C. Martin）甚至写了一本书来阐述他的理解。
 本文是对BOB大叔ClenCode一书的一个简单抽取、分层，目的是整洁代码可以在团队中更容易推行，本文不会重复书中内容，仅提供对模型的一个简单解释，如果对于模型中的细节有疑问，请参考《代码整洁之道》。
@@ -109,10 +61,9 @@ public String toString() {
 - - -
 
 #### 1.1.2 纵向格式
-使用**空行**对内容进行分隔，函数或类的方法不要太长，尽量能一览无余
+使用**空行**对内容进行分隔，函数或类的方法不要太长，尽量能在视野范围内一览无余
 反例：
 ```java
-public class ComparisonCompactor {
 public class ComparisonCompactor {
     private static final String ELLIPSIS = "...";
     private static final String DELTA_END = "]";
@@ -174,12 +125,13 @@ public class ComparisonCompactor {
 ### 1.2 注释
 遵循原则：
 + 尽量不写注释，尝试用代码自阐述
++ 必要时增加注释
 
 注意事项：
 + 擅用源码管理工具
 + 提交代码时，日志要详细
-+ 确认编译器支持"//"
-+ "/*"之后有空格， "*/"之前有空格
++ 确认编译器支持`//`
++ `/*`之后有空格， `*/`之前有空格
 
 #### 1.2.1 好的注释
 1. 法律、版权信息
@@ -256,9 +208,9 @@ std::string timePattern = "\\d{2}:\\d{2}:\\d{2}, \\d{2} \\d{2}, \\d{4}";
 ```
 ---
 #### 1.2.2 不好的注释
-1. 日志型注释 -> 使用源码管理工具记录  
+1. 日志型注释 -> 删除，使用源码管理工具记录  
 ~~此处插入**日志型注释对比**代码~~  
-2. 归属、签名 -> 源码管理工具自动记录
+2. 归属、签名 -> 删除，源码管理工具自动记录
 ~~此处插入**归属、签名对比**代码~~  
 3. 注释掉的代码 -> 删除，使用源码管理工具保存
 ```java
@@ -305,9 +257,9 @@ std::string timePattern = "\\d{2}:\\d{2}:\\d{2}, \\d{2} \\d{2}, \\d{4}";
 // if the timeout is reached.
 public synchronized void waitForClose(final long timeoutMillis) throws Exception 
 {
-    if(!closed) 
+    if(!closed)
     {
-        wait(timeoutMillis); 
+        wait(timeoutMillis);
         if(!closed)
         throw new Exception("MockResponseSender could not be closed"); 
     }
@@ -342,8 +294,8 @@ class GTEST_API_ AssertionResult
 
 注意事项：
 + 包含文件时，确保路径名、文件名大小写敏感
-+ 文件路径分隔符使用"/"，不使用"\"
-+ 路径名一律使用小写、下划线或中划线风格
++ 文件路径分隔符使用`/`，不使用`\`
++ 路径名一律使用小写、下划线(`_`)或中划线风格(`-`)
 + 文件名与程序实体名称一致
 
 #### 1.3.1 头文件编译自满足(C/C++)
@@ -511,12 +463,12 @@ private:
     #endif
     ```
 2. 特别的，对于C++而言，可以使用类或者结构体前置声明，而不包含头文件，降低编译依赖。该类依赖被称为弱依赖，编译时不需要知道实体的真实大小，仅提供一个符号即可，主要有：
-+ 指针
-+ 引用
-+ 返回值
-+ 函数参数
+	+ 指针
+	+ 引用
+	+ 返回值
+	+ 函数参数
 
-    反例：
+  反例：
     ```cpp
     #ifndef _INCL_INSTRUCTION_H_
     #define _INCL_INSTRUCTION_H_
@@ -548,9 +500,11 @@ private:
 
     #endif
     ```
+
 #### 1.3.4 仅公开用户需要的接口
 1. 文件设计时，应遵循信息隐藏原则，仅公开用户需要的接口，对于其他信息尽量隐藏，以减少不必要的依赖。  
-    反例：
+    
+	反例：
     ```cpp
     struct RepeatableInstruction : Instruction
     {
@@ -575,8 +529,9 @@ private:
         const int n;
     };
     ```
-2. 特别的，对于C可以使用static对全局变量、函数等进行隐藏，对于支持面向对象语言则使用其封装特性即可。
-    反例：
+2. 特别的，对于C可以使用static对全局变量、函数等进行隐藏，对于支持面向对象语言则使用其封装特性即可。  
+
+	反例：
     ```cpp
     BOOLEAN isGbr(BYTE qci)
     {
@@ -628,10 +583,10 @@ private:
 ## II 进阶级
 进阶级主要包括命名、测试设计、数据结构及对象设计，该部分要求编码时关注到更多细节，从语义层次提升代码的可理解性。
 ### 2.1 命名
-**命名是提高代码表达力最有效的方式之一**。每一个命名，我们都应该抱着谨慎的态度，像给自己孩子取名字一样，为其取一个好名字。好的名字，总能令人眼前一亮，令阅读者拍案叫绝，但好的名字往往意味着更多的思考，更多的尝试，体现着我们对代码的一种态度。随着我们对业务的进一步了解，发现名字不合适时，要大胆的重构他。
+**命名是提高代码表达力最有效的方式之一**。我们都应该抱着谨慎的态度，像给自己孩子取名字一样，为其命名。好的名字，总能令人眼前一亮，令阅读者拍案叫绝，但好的名字往往意味着更多的思考，更多次尝试，体现着我们对代码的一种态度。随着我们对业务的进一步了解，发现名字不合适时，要大胆的重构他。
 
 遵循原则：
-+ Baby Names，宁停三分，不强一秒
++ Baby Names，宁思三分，不强一秒
 + Min-length ＋ Max-information
 + 结构体/类名用名词或名词短语
 + 接口使用名词或形容词
@@ -642,8 +597,8 @@ private:
 + 避免使用前缀
 + 避免包含数据结构
 + 避免使用数字序列
-+ 擅用词典
-+ 擅用重构工具
++ 善用词典
++ 善用重构工具
 
 #### 2.1.1 关注点
 + 文件夹｜包
@@ -775,6 +730,7 @@ private:
         const int n;
     };
     ```
+
 #### 2.1.3 名称区分问题域与实现域
 1. 现代程序设计期望程序能很好的描述领域知识、业务场景，让开发者和领域专家可以更好的交流，该部分的命名要更贴近问题域。
 
@@ -826,9 +782,9 @@ private:
 + 像对待工程代码一样对待测试用例
 
 注意事项：
-+ 擅用测试框架管理测试用例
++ 善用测试框架管理测试用例
 + 选择具有可移植性测试框架
-+ 尝试业务表达力更强的测试框架
++ 选择业务表达力更强的测试框架
 + 关注测试用例有效性
 + 关注测试用例执行速度
 
@@ -891,7 +847,8 @@ TEST_F(UnmannedAircraftTest, when_receive_instruction_DOWN_aircraft_should_down_
 
 #### 2.2.3 一组测试场景封装为一个测试套
 所有测试用例不应该平铺直叙，在同一个层次，可以使用测试套将其分层，便于用例理解与管理。
-~~此处插入**测试套封装**代码~~  
+
+反例：
 ```cpp
 TEST(GameOfLiftTest, should_not_be_alive_when_a_cell_be_created)
 {
@@ -921,7 +878,7 @@ TEST(GameOfLiftTest, should_given_cells_equals_expect_cells_given_no_neighbour_a
     ASSERT_UNIVERSAL_EQ(GIVEN_CELLS,  EXPECT_CELLS);
 }
 ```
-
+正例：
 ```cpp
 TEST(CellTest, should_not_be_alive_when_a_cell_be_created)
 {
@@ -951,16 +908,17 @@ TEST(UniversalTest, should_given_cells_equals_expect_cells_given_no_neighbour_al
     ASSERT_UNIVERSAL_EQ(GIVEN_CELLS,  EXPECT_CELLS);
 }
 ```
+
 #### 2.2.4 尝试使用DSL表达测试场景
 尝试使用DSL描述测试用例，领域专家可以根据测试用例表述，判断业务是否正确。测试DSL可能需要抽取业务特征，设计、开发测试框架。
 ```cpp
-_TEST(aircraft_should_up_a_step_when_receive_instruction_UP)
+TEST_AIRCRAFT(aircraft_should_up_a_step_when_receive_instruction_UP)
 {
     WHEN_AIRCRAFT_EXECUTE_INSTRUCTION(UP);
     THE_AIRCRAFT_SHOULD_BE_AT(Position(0,0,1,N));
 }
 
-_TEST(aircraft_should_down_a_step_when_receive_instruction_DOWN)
+TEST_AIRCRAFT(aircraft_should_down_a_step_when_receive_instruction_DOWN)
 {
     WHEN_AIRCRAFT_EXECUTE_INSTRUCTION(UP);
     THEN_AIRCRAFT_EXECUTE_INSTRUCTION(DOWN);
@@ -971,8 +929,8 @@ _TEST(aircraft_should_down_a_step_when_receive_instruction_DOWN)
 ### 2.3 对象和数据结构
 此处不讨论面向对象与面向过程设计范式的优劣，仅区分对象与数据结构使用场景与注意事项。
 遵循原则：
-+ 对象隐藏数据，暴露行为
-+ 数据结构暴露数据，无行为
++ 对象隐藏数据，公开行为
++ 数据结构公开数据，无行为
 
 注意事项：
 + 数据结构与对象不可混用
@@ -984,6 +942,7 @@ _TEST(aircraft_should_down_a_step_when_receive_instruction_DOWN)
 面向对象主要关注“做什么”，关心如何对数据进行抽象；数据结构主要表示数据“是什么”，面向过程主要关注“怎么做”，关心如何对数据进行操作。二者都可以很好的解决问题，相互之间并不冲突。
 在使用场景上：
 + 若数据类型频变，可以使用面向对象
+  示例：
   ```cpp
   struct Shape
   {
@@ -1016,6 +975,7 @@ _TEST(aircraft_should_down_a_step_when_receive_instruction_DOWN)
   };
   ```
 + 若类型行为频变，可以使用数据结构
+  示例：
   ```cpp
   struct Circle
   {
@@ -1029,7 +989,7 @@ _TEST(aircraft_should_down_a_step_when_receive_instruction_DOWN)
   ```
 
 #### 2.3.2 避免在对象中使用getter & setter
-使用面向对象较面向过程的一个很大的不同是对象行为的抽象，较数据“是什么”，更关注对象“做什么”，所以，在对象中应该关注对象对外提供的行为是什么，而不是通过getter&setter暴露数据，通过其他的服务、函数、方法操作对象。如果数据被用来传送（即DTO，Data Transfer Objects),使用贫血的数据结构即可。
+面向对象较面向过程的一个很大的不同是对象行为的抽象，较数据“是什么”，更关注对象“做什么”，所以，在对象中应该关注对象对外提供的行为是什么，而不是通过getter&setter暴露数据，通过其他的服务、函数、方法操作对象。如果数据被用来传送（即DTO，Data Transfer Objects),使用贫血的数据结构即可。
 反例：
 ```cpp
 struct Coordinate
@@ -1109,7 +1069,7 @@ struct Coordinate
 };
 ```
 #### 2.3.4 避免在数据结构中添加行为
-数据结构表示数据“是什么”，承载着数据的特征、属性。为数据结构增加一些“做什么”的行为，让数据结构变的不伦不类，也会增加设计的复杂度，不知该封装该数据结构，为其提供一些行为，还是直接调用它的方法。对于特殊的构造函数或者拷贝构造函数、赋值操作符除外。
+数据结构表示数据“是什么”，承载着数据的特征、属性。为数据结构增加一些“做什么”的行为，不但让数据结构变的不伦不类，也会让使用者感到迷惑，不知道该调用它的方法还是作为DTO使用。对于特殊的构造函数或者拷贝构造函数、赋值操作符除外。
 反例：
 ```cpp
 struct QosPara
@@ -1136,7 +1096,7 @@ typedef struct QosPara
 ```
 
 ## III 高阶级
-高阶部分涉及到函数、类、系统的遵循的一些设计原则和一些基本的实现模式，以提升代码的可理解性。
+高阶部分包括函数、类、系统设计相关的一些设计原则和实现模式。
 
 ### 3.1 函数
 遵循原则：
@@ -1145,13 +1105,14 @@ typedef struct QosPara
 + 同一函数所有语句同一抽象层次
 
 注意事项：
-+ 避免规定函数的长度
++ 避免强行规定函数的长度
 + 避免打着性能的幌子拒绝提取函数
 + 避免函数名名不副实，隐藏函数真正意图
-+ 避免一开始就抽取函数，可以先完成业务逻辑，逐渐重构
++ 避免一开始就考虑抽取函数，建议先完成业务逻辑，再重构
 
 #### 3.1.1 每个函数只做一件事
-每个函数只做一件事，做好这件事，是单一职责在函数设计中的体现。只做一件事最难的是要做的到底是哪件事，怎么样的函数就是只做一件事的函数，提供如下建议：
+每个函数只做一件事，做好这件事，是单一职责在函数设计中的体现。只做一件事最难理解的是到底是要做哪件事，怎么样的函数就是只做一件事的函数呢？
+提供如下建议：
 1. 函数名不存在and,or等连接词，且函数名表达意思与函数完成行为一致
 2. 函数内所有语句都在同一抽象层次
 3. 无法再拆分出另外一个函数
@@ -1255,8 +1216,9 @@ WORD32 GetTotalCharge(Customer* tCustomer)
 	return totalAmount;
 }
 ```
+
 #### 3.1.2 函数内语句同一抽象层次
-函数内语句在同一抽象层次或相同抽象层次。抽象层次是业务概念，即函数内业务逻辑在同一层级，不能把抽象与细节进行混杂。遇到混杂的函数可以通过提取函数(Extract Method)或者分解函数(Compose Method)的方法将其拆分。
+函数内语句在同一抽象层次。抽象层次是业务概念，即函数内业务逻辑在同一层级，不能把抽象与细节进行混杂。遇到混杂的函数可以通过提取函数(Extract Method)或者分解函数(Compose Method)的方法将其拆分。
 反例：
 ```cpp
 static Status verify(const Erab* erab, SuccessErabList* succList, FailedErabList* failList)
@@ -1355,7 +1317,7 @@ Status filterErabs(const Erab* erab, SuccessErabList* succList, FailedErabList* 
 ```
 
 #### 3.1.3 尽量避免三个以上的函数参数
-函数参数最好无参数，然后是一个参数，其次两个，尽量避免超过三个。太多参数往往预示着函数职责不单一，也很难进行自动化测试覆盖。遇到过多参数函数，考虑是否可以拆分函数或把一些强关联参数封装成参数对象。
+函数最好无参数，然后是一个参数，其次两个，尽量避免超过三个。太多参数往往预示着函数职责不单一，也很难进行自动化测试覆盖。遇到过多参数函数，考虑是否可以拆分函数或把一些强关联参数封装成参数对象。
 
 反例：
 ```cpp
@@ -1726,5 +1688,3 @@ private:
 #### 3.3.4 考虑系统性能
 系统性能是不同与功能的另一个维度，在软件设计过程中，不宜过早的考虑性能优化，但是切忌设计中带来明显的性能劣化。
 性能部分请参考另一篇文章《Effective Performance》
-=======
->>>>>>> 6148847445cf4346b1f7ac3bee27cb01c775b83a
