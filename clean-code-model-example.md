@@ -2,10 +2,11 @@
 
 [TOC]
 
-* * *
-
 “Clean Code That Works”，来自于Ron Jeffries这句箴言指导我们写的代码要整洁有效，Kent Beck把它作为TDD（Test Driven Development）追求的目标，BoB大叔（Robert C. Martin）甚至写了一本书来阐述他的理解。
-本文是对BOB大叔ClenCode一书的一个简单抽取、分层，目的是整洁代码可以在团队中更容易推行，本文不会重复书中内容，仅提供对模型的一个简单解释，如果对于模型中的细节有疑问，请参考《代码整洁之道》。
+整洁的代码不一定能带来更好的性能，更优的架构，但它却更容易找到性能瓶颈，更容易理解业务需求，驱动出更好的架构。整洁的代码是写代码者对自己技艺的在意，是对读代码者尊重。
+本文是对BOB大叔《Clen Code》^[1]^一书的一个简单抽取、分层，目的是整洁代码可以在团队中更容易推行，本文不会重复书中内容，仅提供对模型的一个简单解释，如果对于模型中的细节有疑问，请参考《代码整洁之道》^[1]^。
+
+***
 
 ## I 基础级
 基础级主要包括代码格式、注释、物理设计三部分，这三部分比较容易做到，甚至可以制定为团队的编码规范，保证团队代码保持统一风格。
@@ -209,9 +210,98 @@ std::string timePattern = "\\d{2}:\\d{2}:\\d{2}, \\d{2} \\d{2}, \\d{4}";
 ---
 #### 1.2.2 不好的注释
 1. 日志型注释 -> 删除，使用源码管理工具记录  
-~~此处插入**日志型注释对比**代码~~  
+```java
+    /**
+     ＊c00kiemon5ter 2015-9-20 add  SquareState
+     * c00kiemon5ter 2015-10-1 change the symbol
+     */
+    public enum SquareState {
+
+        BLACK('●'),
+        WHITE('○'),
+    //	BLACK('x'),
+    //	WHITE('o'),
+        PSSBL('.'),
+        EMPTY(' ');
+        private final char symbol;
+
+        SquareState(char symbol) {
+            this.symbol = symbol;
+        }
+
+        public char symbol() {
+            return this.symbol;
+        }
+    }
+    ```
+
+    ```java
+    public enum SquareState {
+        BLACK('●'),
+        WHITE('○'),
+        PSSBL('.'),
+        EMPTY(' ');
+        private final char symbol;
+
+        SquareState(char symbol) {
+            this.symbol = symbol;
+        }
+
+        public char symbol() {
+            return this.symbol;
+        }
+    }
+    ```
+  ```git
+  $git commit -m "change BLACK symbol from x to ●, WHITE from ○ to O"
+  ```
 2. 归属、签名 -> 删除，源码管理工具自动记录
-~~此处插入**归属、签名对比**代码~~  
+   反例：
+    ```java
+    /**
+     * @author c00kiemon5ter 
+     */
+    public enum Player {
+
+        BLACK(SquareState.BLACK),
+        WHITE(SquareState.WHITE);
+        private SquareState color;
+
+        private Player(SquareState color) {
+            this.color = color;
+        }
+
+        public Player opponent() {
+            return this == BLACK ? WHITE : BLACK;
+        }
+
+        public SquareState color() {
+            return color;
+        }
+    }
+    ```
+    正例：
+    ```java
+    public enum Player {
+
+        BLACK(SquareState.BLACK),
+        WHITE(SquareState.WHITE);
+        private SquareState color;
+
+        private Player(SquareState color) {
+            this.color = color;
+        }
+
+        public Player opponent() {
+            return this == BLACK ? WHITE : BLACK;
+        }
+
+        public SquareState color() {
+            return color;
+        }
+    }
+    ```
+
 3. 注释掉的代码 -> 删除，使用源码管理工具保存
 ```java
 	public Point evalMove() {
@@ -225,7 +315,30 @@ std::string timePattern = "\\d{2}:\\d{2}:\\d{2}, \\d{2} \\d{2}, \\d{4}";
 	}
 ```
 4. 函数头 -> 尝试使用更好的函数名，更好参数名，更少参数替换注释
-~~此处插入**函数头对比**代码~~  
+   反例：
+    ```cpp
+    /***********************************************************************
+    * function Name: GetCharge
+    * function description：get total Rental charge
+    * return value：WORD32 
+    * other
+    * date    version     author     contents
+    * -----------------------------------------------
+    * 2014/11/28  V1.0	    XXXX	      XXXX
+    *************************************************************************/
+    WORD32 GetCharge(T_Customer* tCustomer)
+    {
+        ...
+    }
+    ```
+    正例：
+    ```cpp
+    WORD32 GetTotalRentalCharge(Customer* customer)
+    {
+        ...
+    }
+    ```
+
 5. 位置标记 -> 删除，简化逻辑
 ```java
 	public static Set<Point> explore(final Board board, final SquareState state) {
@@ -286,7 +399,7 @@ class GTEST_API_ AssertionResult
 ```
 ---
 ### 1.3 物理设计
-遵循原则：
+遵循原则^[4]^：
 + 头文件编译自满足（C/C++)
 + 文件职责单一
 + 文件最小依赖
@@ -1102,7 +1215,7 @@ typedef struct QosPara
 遵循原则：
 + 别重复自己（DRY）
 + 单一职责（SRP）
-+ 同一函数所有语句同一抽象层次
++ 函数内所有语句在同一抽象层次
 
 注意事项：
 + 避免强行规定函数的长度
@@ -1111,7 +1224,7 @@ typedef struct QosPara
 + 避免一开始就考虑抽取函数，建议先完成业务逻辑，再重构
 
 #### 3.1.1 每个函数只做一件事
-每个函数只做一件事，做好这件事，是单一职责在函数设计中的体现。只做一件事最难理解的是到底是要做哪件事，怎么样的函数就是只做一件事的函数呢？
+每个函数只做一件事，做好这件事，是单一职责在函数设计中的体现。只做一件事最难理解的是要做哪件事，怎么样的函数就是只做一件事的函数呢？
 提供如下建议：
 1. 函数名不存在and,or等连接词，且函数名表达意思与函数完成行为一致
 2. 函数内所有语句都在同一抽象层次
@@ -1218,7 +1331,7 @@ WORD32 GetTotalCharge(Customer* tCustomer)
 ```
 
 #### 3.1.2 函数内语句同一抽象层次
-函数内语句在同一抽象层次。抽象层次是业务概念，即函数内业务逻辑在同一层级，不能把抽象与细节进行混杂。遇到混杂的函数可以通过提取函数(Extract Method)或者分解函数(Compose Method)的方法将其拆分。
+抽象层次是业务概念，即函数内业务逻辑在同一层级，不能把抽象与细节进行混杂。可以通过提取函数(Extract Method)或者分解函数(Compose Method)的方法将将函数重构到同一抽象层次。
 反例：
 ```cpp
 static Status verify(const Erab* erab, SuccessErabList* succList, FailedErabList* failList)
@@ -1317,7 +1430,7 @@ Status filterErabs(const Erab* erab, SuccessErabList* succList, FailedErabList* 
 ```
 
 #### 3.1.3 尽量避免三个以上的函数参数
-函数最好无参数，然后是一个参数，其次两个，尽量避免超过三个。太多参数往往预示着函数职责不单一，也很难进行自动化测试覆盖。遇到过多参数函数，考虑是否可以拆分函数或把一些强关联参数封装成参数对象。
+函数最好无参数，然后是一个参数，其次两个，尽量避免超过三个。太多参数往往预示着函数职责不单一，也很难进行自动化测试覆盖。遇到参数过多函数，考虑拆分函数或将强相关参数封装成参数对象来减少参数。
 
 反例：
 ```cpp
@@ -1371,11 +1484,12 @@ static Status addToFailedErabList(const Erab* erab, Status status, FailedErabLis
 ```
 
 #### 3.1.4 区分查询函数与指令函数
-从数据的状态是否被修改，可以将函数分为两大类：查询函数和指令函数。查询函数不会改变数据的状态；指令函数会修改数据的状态。区分二者区别，需要注意如下：
-1. 查询函数考虑使用is，should,need等词增强其语义
-2. 查询函数往往无参数或仅有入参，考虑使用const等关键词明确查询语义
-3. 忌在查询函数语义函数体内修改数据，造成极大迷惑
-4. 指令函数忌用查询语义词汇，查询函数忌用指令操作词汇(set,update,add...)
+从数据的状态是否被修改，可以将函数分为两大类：查询函数和指令函数。查询函数不会改变数据的状态；指令函数会修改数据的状态。区分二者，需要注意如下：
+1. 查询函数使用`is`,`should`,`need`等词增强其查询语义
+2. 指令函数使用`set`,`update`,`add`等词增强其指令语义
+3. 查询函数往往无参数或仅有入参，考虑使用`const`关键词明确查询语义
+4. 忌在查询函数体内修改数据，造成极大迷惑
+5. 指令函数忌用查询语义词汇
 
 反例：
 ```cpp
@@ -1417,14 +1531,14 @@ static Status addToSuccessErabList(const Erab* erab, SuccessErabList* succList)
 
 ```
 #### 3.1.5 消除重复的函数
-函数的第一个遵循原则就是短小，但短小是结果，不是目的，也没有必要刻意追求短小的函数。消除代码中的重复，自然会得到可观长度的函数。重复可谓一切软件腐化的万恶之源，是否是否识别重复、消除重复也是我们软件设计的一项基本功。
+“函数的第一规则是短小，第二规则是更短小^[1]^”，但短小是结果，不是目的，也没有必要刻意追求短小的函数。消除代码中的重复，自然会得到长度可观的函数。重复可谓一切软件腐化的万恶之源，能识别重复并消除重复是我们软件设计的一项基本功。
 
 ### 3.2 类
-面向对象程序设计一个比较大的优势程序的扩展性，本节不会涉及太多关于扩展性建议，主要关注类设计的整洁、可理解性。
+本节不会涉及太多关于扩展性建议，主要关注类设计的整洁、可理解性。
 
 遵循原则：
 + 别重复自己（DRY）
-+ S.O.L.I.D原则
++ S.O.L.I.D原则^[2]^
 
 注意事项：
 + 避免公开成员变量
@@ -1434,8 +1548,8 @@ static Status addToSuccessErabList(const Erab* erab, SuccessErabList* succList)
 + 区分接口实现与泛化
 
 #### 3.2.1 设计职责单一的类
-单一职责是类设计中最基本、最简单的一个原则，也是最难正确使用的原则。职责单一的类必然是一些內聚的小类，內聚的小类进一步简化了类与类之间的依赖关系，从而简化了设计。软件设计在一定程度上就是分离对象职责，管理对象间依赖关系。
-那么什么是类的职责呢？Bob大叔把它定义为“变化的原因”，职责单一的类即仅有一个引起它变化的原因的类。如何判断一个类是职责单一呢？给出一些建议：
+单一职责是类设计中最基本、最简单的原则，也是最难正确使用的原则。职责单一的类必然是一些內聚的小类，內聚的小类进一步简化了类与类之间的依赖关系，从而简化了设计。软件设计在一定程度上就是分离对象职责，管理对象间依赖关系。
+那么什么是类的职责呢？Bob大叔把它定义为“变化的原因”，职责单一的类即仅有一个引起它变化的原因的类。如何判断一个类是否职责单一呢？给出一些建议：
 + 类中数据具有相同生命周期
 + 类中数据相互依赖、相互结合成一个整体概念
 + 类中方法总是在操作类中数据
@@ -1509,7 +1623,7 @@ struct Position : Coordinate, Orientation
 
 ```
 #### 3.2.3 避免方法过多的接口
-接口隔离原则（ISP)就是避免接口中绑定一些用户不需要的方法，避免用户代码与该接口之间产生不必要的耦合关系。接口中虽然没有数据，但是根据其行为职责及用户的依赖，将其进行拆分。清晰的接口定义不但可以减少不必要的编译依赖，还可以改善程序的可理解性。
+接口隔离原则（ISP)^[2]^就是避免接口中绑定一些用户不需要的方法，避免用户代码与该接口之间产生不必要的耦合。接口中虽然没有数据，可以根据用户依赖或者接口职责对其拆分。清晰的接口定义不但可以减少不必要的编译依赖，还可以改善程序的可理解性。
 
 反例：
 ```cpp
@@ -1556,7 +1670,7 @@ struct ModemImpl : Modem
 ```
 
 #### 3.2.3 避免方法过多的类（上帝类）
-方法过多的上帝类，预示该类包含过多职责，类之间存在着大量的重复，不便于设计的组合，需要对该类进行进一步抽象，拆分成更多职责单一，功能內聚的小类。
+方法过多的类，预示该类包含过多职责，行为存在着大量的重复，不便于设计的组合，需要对该其进行抽象，拆分成更多职责单一，功能內聚的小类。
 
 ```java
 //java
@@ -1590,7 +1704,7 @@ public class SuperDashboard extends JFrame implements MetaDataUser
 };
 ```
 #### 3.2.4 避免过多的继承层次
-继承关系包括接口继承（实现）、类继承（泛化）两种，接口继承即依赖于抽象，方便程序的扩展；类继承便于复用代码，消除重复，但是设计中过多的继承层次，往往导致设计逻辑的不清晰，建议继承层次不要太深，另外，可以考虑使用组合方案替代继承方案（比如使用策略模式替代模版方法）。
+继承关系包括接口继承（实现）、类继承（泛化）两种，接口继承即依赖于抽象，方便程序的扩展；类继承便于复用代码，消除重复，但是设计中过多的继承层次，往往导致设计逻辑的不清晰，建议继承层次不要太深，另外，可以考虑使用组合方案替代继承方案（比如使用策略模式替代模版方法^[3]^）。
 
 ```cpp
 //Template Method
@@ -1672,9 +1786,13 @@ private:
 + 层次清晰
 
 注意事项：
++ 避免认为Demo就是真实的系统，二者差异很大
++ 避免盲目套用流行架构，根据需求选用合适架构
++ 考虑系统弹性，避免过度设计，用迭代完善架构
++ 设计时考虑系统性能
 
 #### 3.3.1 合理的对系统进行分层
-一个设计良好的系统，必然是一个层次清晰的系统。分层方法可以参考业界常用方法，比如领域驱动设计（DDD）将其分为：表示层、应用层、领域层、基础设施层。
+一个设计良好的系统，必然是一个层次清晰的系统。分层方法可以参考业界常用方法，比如领域驱动设计^[5]^（DDD）将其分为：表示层、应用层、领域层、基础设施层。
 
 ![Diagram](images/clean-code-model/ddd-diagram.png)
 ![Archtecture](images/clean-code-model/dddd-full.png)
@@ -1686,5 +1804,11 @@ private:
 分离构造与使用，即将对象的创建与对象的使用分离，是降低软件复杂度的常用方法，对应领域驱动设计（DDD）中使用工厂（Factory）创建对象，使用仓库（Repository）存储对象。
 
 #### 3.3.4 考虑系统性能
-系统性能是不同与功能的另一个维度，在软件设计过程中，不宜过早的考虑性能优化，但是切忌设计中带来明显的性能劣化。
-性能部分请参考另一篇文章《Effective Performance》
+系统性能是不同与功能的另一个维度，在软件设计过程中，把性能作为一个重要指标考虑。编码过程中不易过早的考虑性能优化，但也不要进行明显的性能劣化。
+
+参考文献：
+[^1]: Robert C.Martin-代码整洁之道
+[^2]: Robert C.Martin-敏捷软件开发－原则、模式与实践
+[^3]: Erich Gamma...-设计模式
+[^4]: 刘光聪－cpp-programming-style
+[^5]: Eric Evans-领域驱动设计
